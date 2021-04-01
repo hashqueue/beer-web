@@ -1,137 +1,65 @@
 import axios from 'axios'
-import Cookie from 'js-cookie'
+import { getToken } from '@/utils/auth'
+import { notification } from 'ant-design-vue'
 
-// 跨域认证信息 header 名
-const xsrfHeaderName = 'Authorization'
-
-axios.defaults.timeout = 5000
-axios.defaults.withCredentials = true
-axios.defaults.xsrfHeaderName = xsrfHeaderName
-axios.defaults.xsrfCookieName = xsrfHeaderName
-
-// 认证类型
-const AUTH_TYPE = {
-  BEARER: 'Bearer',
-  BASIC: 'basic',
-  AUTH1: 'auth1',
-  AUTH2: 'auth2'
-}
-
-// http method
-const METHOD = {
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put',
-  DELETE: 'delete',
-  PATCH: 'patch'
-}
-
-/**
- * axios请求
- * @param url 请求地址
- * @param method {METHOD} http method
- * @param params 请求参数
- * @param config
- * @returns {Promise<AxiosResponse<T>>}
- */
-async function request(url, method, params, config) {
-  switch (method) {
-    case METHOD.GET:
-      return axios.get(url, { params, ...config })
-    case METHOD.POST:
-      return axios.post(url, params, config)
-    case METHOD.PUT:
-      return axios.put(url, params, config)
-    case METHOD.DELETE:
-      return axios.delete(url, { params, ...config })
-    case METHOD.PATCH:
-      return axios.patch(url, params, config)
-    default:
-      return axios.get(url, { params, ...config })
-  }
-}
-
-/**
- * 设置认证信息
- * @param auth {Object}
- */
-function setAuthorization(auth) {
-  Cookie.set(xsrfHeaderName, auth.token, { expires: 1 })
-}
-
-/**
- * 移出认证信息
- */
-function removeAuthorization() {
-  Cookie.remove(xsrfHeaderName)
-}
-
-/**
- * 检查认证信息
- * @param authType
- * @returns {boolean}
- */
-function checkAuthorization() {
-  return !!Cookie.get(xsrfHeaderName)
-}
-
-/**
- * 加载 axios 拦截器
- * @param interceptors
- * @param options
- */
-function loadInterceptors(interceptors, options) {
-  const { request, response } = interceptors
-  // 加载请求拦截器
-  request.forEach((item) => {
-    let { onFulfilled, onRejected } = item
-    if (!onFulfilled || typeof onFulfilled !== 'function') {
-      onFulfilled = (config) => config
-    }
-    if (!onRejected || typeof onRejected !== 'function') {
-      onRejected = (error) => Promise.reject(error)
-    }
-    axios.interceptors.request.use(
-      (config) => onFulfilled(config, options),
-      (error) => onRejected(error, options)
-    )
-  })
-  // 加载响应拦截器
-  response.forEach((item) => {
-    let { onFulfilled, onRejected } = item
-    if (!onFulfilled || typeof onFulfilled !== 'function') {
-      onFulfilled = (response) => response
-    }
-    if (!onRejected || typeof onRejected !== 'function') {
-      onRejected = (error) => Promise.reject(error)
-    }
-    axios.interceptors.response.use(
-      (response) => onFulfilled(response, options),
-      (error) => onRejected(error, options)
-    )
+const notice = (msg) => {
+  notification.error({
+    message: '错误',
+    description: msg
   })
 }
 
-/**
- * 解析 url 中的参数
- * @param url
- * @returns {Object}
- */
-function parseUrlParams(url) {
-  const params = {}
-  if (!url || url === '' || typeof url !== 'string') {
-    return params
-  }
-  const paramsStr = url.split('?')[1]
-  if (!paramsStr) {
-    return params
-  }
-  const paramsArr = paramsStr.replace(/&|=/g, ' ').split(' ')
-  for (let i = 0; i < paramsArr.length / 2; i++) {
-    const value = paramsArr[i * 2 + 1]
-    params[paramsArr[i * 2]] = value === 'true' ? true : value === 'false' ? false : value
-  }
-  return params
-}
+const service = axios.create({
+  baseURL: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/api' : 'http://127.0.0.1:8000/pro-api',
+  timeout: 5000
+})
 
-export { METHOD, AUTH_TYPE, request, setAuthorization, removeAuthorization, checkAuthorization, loadInterceptors, parseUrlParams }
+// request interceptor
+service.interceptors.request.use(
+  (config) => {
+    if (getToken() !== undefined) {
+      // let each request carry token
+      // ['Authorization'] is a custom headers key
+      config.headers['Authorization'] = 'Bearer ' + getToken()
+    }
+    return config
+  },
+  (error) => {
+    console.log('req' + error)
+    return Promise.reject(error)
+  }
+)
+
+// response interceptor
+service.interceptors.response.use(
+  (response) => {
+    const resData = response.data
+    // if the custom code is not 20000, it is judged as an error.
+    if (resData.code !== 20000) {
+      notice(resData.message || '未知错误 ===> code!=20000')
+      return Promise.reject(new Error(resData.message || '未知错误 ===> code!=20000'))
+    } else {
+      return resData
+    }
+  },
+  (error) => {
+    const resErrorData = error.response.data
+    if (error.response.status === 400) {
+      notice(JSON.stringify(resErrorData.message) || '未知错误 ===> 400')
+    } else if (error.response.status === 401) {
+      notice(resErrorData.message || '未知错误 ===> 401')
+    } else if (error.response.status === 403) {
+      notice(resErrorData.message || '未知错误 ===> 403')
+    } else if (error.response.status === 404) {
+      notice(resErrorData.message || '未知错误 ===> 404')
+    } else if (error.response.status === 500) {
+      notice('服务器出现了未知错误,请联系站点管理员')
+    } else {
+      notice(resErrorData.message || `未知错误 ===> ${error.response.status}`)
+    }
+    // console.log(error.message);
+    return Promise.reject(error)
+  }
+)
+
+export default service

@@ -8,17 +8,17 @@ const options = {
     {
       path: '/login',
       name: '登录页',
-      component: () => import('@/pages/login')
+      component: () => import('@/views/login')
     },
     {
       path: '*',
       name: '404',
-      component: () => import('@/pages/exception/404')
+      component: () => import('@/views/exception/404')
     },
     {
       path: '/403',
       name: '403',
-      component: () => import('@/pages/exception/403')
+      component: () => import('@/views/exception/403')
     },
     {
       path: '/',
@@ -32,7 +32,7 @@ const options = {
           meta: {
             icon: 'file-ppt'
           },
-          component: () => import('@/pages/demo')
+          component: () => import('@/views/demo')
         },
         {
           path: 'parent1',
@@ -45,7 +45,7 @@ const options = {
             {
               path: 'demo1',
               name: '演示页面1',
-              component: () => import('@/pages/demo')
+              component: () => import('@/views/demo')
             }
           ]
         },
@@ -60,7 +60,7 @@ const options = {
             {
               path: 'demo2',
               name: '演示页面2',
-              component: () => import('@/pages/demo')
+              component: () => import('@/views/demo')
             }
           ]
         },
@@ -75,17 +75,17 @@ const options = {
             {
               path: '404',
               name: 'Exp404',
-              component: () => import('@/pages/exception/404')
+              component: () => import('@/views/exception/404')
             },
             {
               path: '403',
               name: 'Exp403',
-              component: () => import('@/pages/exception/403')
+              component: () => import('@/views/exception/403')
             },
             {
               path: '500',
               name: 'Exp500',
-              component: () => import('@/pages/exception/500')
+              component: () => import('@/views/exception/500')
             }
           ]
         },
@@ -98,7 +98,7 @@ const options = {
               permission: 'form',
               role: 'manager'
             },
-            component: () => import('@/pages/demo')
+            component: () => import('@/views/demo')
           }
         }
       ]
