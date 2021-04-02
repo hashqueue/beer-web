@@ -27,12 +27,24 @@ const options = {
       redirect: '/login',
       children: [
         {
-          path: 'demo',
-          name: '演示页',
+          path: 'dashboard',
+          name: 'Dashboard',
           meta: {
-            icon: 'file-ppt'
+            icon: 'dashboard'
           },
-          component: () => import('@/views/demo')
+          component: BlankView,
+          children: [
+            {
+              path: 'workplace',
+              name: '工作台',
+              meta: {
+                page: {
+                  closable: false
+                }
+              },
+              component: () => import('@/views/dashboard/workplace')
+            }
+          ]
         },
         {
           path: 'parent1',

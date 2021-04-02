@@ -159,14 +159,14 @@ export default {
             .then((res) => {
               this.loginForm.username = ''
               this.loginForm.password = ''
-              this.$message.success(res.message)
               setToken(res.data.access)
               setUserId(res.data.user_id)
               // 获取当前登录用户的信息
               getUserProfile(res.data.user_id).then((res) => {
                 setUserInfo(res.data)
               })
-              this.$router.push('/demo')
+              this.$message.success(res.message)
+              this.$router.push('/dashboard/workplace')
             })
             .catch((err) => {
               console.log(err)
