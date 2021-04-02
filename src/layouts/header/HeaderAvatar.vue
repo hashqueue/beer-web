@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
-import { removeToken, removeUserId } from '@/utils/auth'
+import { removeToken, removeUserId, removeUserInfo } from '@/utils/auth'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'HeaderAvatar',
@@ -28,11 +28,10 @@ export default {
     ...mapGetters('account', ['user'])
   },
   methods: {
-    ...mapMutations('account', ['removeUser']),
     logout() {
       removeToken()
       removeUserId()
-      this.removeUser()
+      removeUserInfo()
       this.$router.push('/login')
     }
   }

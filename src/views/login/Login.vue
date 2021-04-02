@@ -8,25 +8,71 @@
       <div class="desc">Ant Design 是西湖区最具影响力的 Web 设计规范</div>
     </div>
     <div class="loginAndRegister">
-      <a-tabs size="large" :tabBarStyle="{ textAlign: 'center' }" style="padding: 0 2px">
+      <a-tabs
+        :activeKey="activeKey"
+        size="large"
+        :tabBarStyle="{ textAlign: 'center' }"
+        style="padding: 0 2px"
+        @change="changeActiveKey"
+      >
         <a-tab-pane tab="登录" key="1">
           <a-form-model ref="loginRuleFormRef" :model="loginForm" :rules="loginFormRules">
             <a-form-model-item prop="username">
-              <a-input size="large" placeholder="用户名/邮箱" v-model="loginForm.username">
+              <a-input allowClear size="large" placeholder="用户名/邮箱" v-model="loginForm.username">
                 <a-icon slot="prefix" type="user" />
               </a-input>
             </a-form-model-item>
             <a-form-model-item prop="password">
-              <a-input size="large" placeholder="密码" v-model="loginForm.password" type="password">
+              <a-input-password allowClear size="large" placeholder="密码" v-model="loginForm.password" type="password">
                 <a-icon slot="prefix" type="lock" />
-              </a-input>
+              </a-input-password>
             </a-form-model-item>
-            <a-button type="primary" style="width: 100%; margin-top: 24px" size="large" @click="submitForm('loginRuleFormRef')"
+            <a-button
+              type="primary"
+              style="width: 100%; margin-top: 24px"
+              size="large"
+              @click="submitLoginForm('loginRuleFormRef')"
               >登录</a-button
             >
           </a-form-model>
         </a-tab-pane>
-        <a-tab-pane tab="注册" key="2"> </a-tab-pane>
+        <a-tab-pane tab="注册" key="2">
+          <a-form-model ref="registerRuleFormRef" :model="registerForm" :rules="registerFormRules">
+            <a-form-model-item prop="username">
+              <a-input allowClear size="large" placeholder="用户名" v-model="registerForm.username">
+                <a-icon slot="prefix" type="user" />
+              </a-input>
+            </a-form-model-item>
+            <a-form-model-item prop="email">
+              <a-input allowClear size="large" placeholder="邮箱" v-model="registerForm.email">
+                <a-icon slot="prefix" type="mail" />
+              </a-input>
+            </a-form-model-item>
+            <a-form-model-item prop="password">
+              <a-input-password allowClear size="large" placeholder="密码" v-model="registerForm.password" type="password">
+                <a-icon slot="prefix" type="lock" />
+              </a-input-password>
+            </a-form-model-item>
+            <a-form-model-item prop="password_confirm">
+              <a-input-password
+                allowClear
+                size="large"
+                placeholder="确认密码"
+                v-model="registerForm.password_confirm"
+                type="password"
+              >
+                <a-icon slot="prefix" type="lock" />
+              </a-input-password>
+            </a-form-model-item>
+            <a-button
+              type="primary"
+              style="width: 100%; margin-top: 24px"
+              size="large"
+              @click="submitRegisterForm('registerRuleFormRef')"
+              >注册</a-button
+            >
+          </a-form-model>
+        </a-tab-pane>
       </a-tabs>
     </div>
   </common-layout>
@@ -34,61 +80,61 @@
 
 <script>
 import CommonLayout from '@/layouts/CommonLayout'
-import { userLogin, getUserProfile } from '@/apis/user'
-import { setToken, setUserId } from '@/utils/auth'
-import { mapMutations } from 'vuex'
+import { getUserProfile, userLogin, userRegister } from '@/apis/user'
+import { setToken, setUserId, setUserInfo } from '@/utils/auth'
 
 export default {
   name: 'Login',
   components: { CommonLayout },
   data() {
-    // let checkPending
-    // let checkAge = (rule, value, callback) => {
-    //   clearTimeout(checkPending)
-    //   if (!value) {
-    //     return callback(new Error('Please input the age'))
-    //   }
-    //   checkPending = setTimeout(() => {
-    //     if (!Number.isInteger(value)) {
-    //       callback(new Error('Please input digits'))
-    //     } else {
-    //       if (value < 18) {
-    //         callback(new Error('Age must be greater than 18'))
-    //       } else {
-    //         callback()
-    //       }
-    //     }
-    //   }, 1000)
-    // }
-    // let validatePass = (rule, value, callback) => {
-    //   if (value === '') {
-    //     callback(new Error('Please input the password'))
-    //   } else {
-    //     if (this.loginForm.checkPass !== '') {
-    //       this.$refs.ruleForm.validateField('checkPass')
-    //     }
-    //     callback()
-    //   }
-    // }
-    // let validatePass2 = (rule, value, callback) => {
-    //   if (value === '') {
-    //     callback(new Error('Please input the password again'))
-    //   } else if (value !== this.loginForm.pass) {
-    //     callback(new Error("Two inputs don't match!"))
-    //   } else {
-    //     callback()
-    //   }
-    // }
+    let validatePasswordConfirm = (rule, value, callback) => {
+      if (value !== this.registerForm.password) {
+        callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
+    let validateMail = (rule, value, callback) => {
+      if (!/\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/g.test(value)) {
+        callback(new Error('输入的邮箱格式不对'))
+      } else {
+        callback()
+      }
+    }
     return {
+      activeKey: '1',
       loginForm: {
         username: '',
         password: ''
       },
       loginFormRules: {
         username: [{ required: true, message: '请输入用户名/邮箱', trigger: 'blur' }],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+      },
+      registerForm: {
+        username: '',
+        email: '',
+        password: '',
+        password_confirm: ''
+      },
+      registerFormRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 6, max: 150, message: '密码长度不能小于6个字符或超过150个字符', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { min: 8, max: 254, message: '邮箱长度不能小于8个字符或超过254个字符', trigger: 'blur' },
+          { validator: validateMail, trigger: 'blur' }
+        ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
-          // { min: 6, max: 150, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'blur' }
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 128, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'blur' }
+        ],
+        password_confirm: [
+          { required: true, message: '请输入确认密码', trigger: 'blur' },
+          { min: 6, max: 128, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'blur' },
+          { validator: validatePasswordConfirm, trigger: 'blur' }
         ]
       }
     }
@@ -99,8 +145,14 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('account', ['setUser']),
-    submitForm(formName) {
+    changeActiveKey(key) {
+      if (key === '2') {
+        this.activeKey = '2'
+      } else {
+        this.activeKey = '1'
+      }
+    },
+    submitLoginForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           userLogin(this.loginForm)
@@ -112,13 +164,33 @@ export default {
               setUserId(res.data.user_id)
               // 获取当前登录用户的信息
               getUserProfile(res.data.user_id).then((res) => {
-                this.setUser(res.data)
+                setUserInfo(res.data)
               })
               this.$router.push('/demo')
             })
             .catch((err) => {
               console.log(err)
             })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    submitRegisterForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          userRegister(this.registerForm).then((res) => {
+            this.loginForm.username = this.registerForm.username
+            this.loginForm.password = this.registerForm.password
+            this.registerForm.username = ''
+            this.registerForm.email = ''
+            this.registerForm.password = ''
+            this.registerForm.password_confirm = ''
+            this.$message.success(res.message)
+            this.activeKey = '1'
+          })
+          console.log('registerSubmit')
         } else {
           console.log('error submit!!')
           return false

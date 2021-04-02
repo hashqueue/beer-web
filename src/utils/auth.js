@@ -52,3 +52,19 @@ export function setUserId(userId) {
 export function removeUserId() {
   return Cookies.remove(userIdKey)
 }
+
+/**
+ * 设置当前登录用户的信息
+ * @param userInfo
+ */
+export function setUserInfo(userInfo) {
+  localStorage.setItem(process.env.VUE_APP_USER_KEY, JSON.stringify(userInfo))
+}
+
+export function getUserInfo() {
+  return JSON.parse(localStorage.getItem(process.env.VUE_APP_USER_KEY))
+}
+
+export function removeUserInfo() {
+  localStorage.removeItem(process.env.VUE_APP_USER_KEY)
+}
