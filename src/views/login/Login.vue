@@ -23,7 +23,14 @@
               </a-input>
             </a-form-model-item>
             <a-form-model-item prop="password">
-              <a-input-password allowClear size="large" placeholder="密码" v-model="loginForm.password" type="password">
+              <a-input-password
+                allowClear
+                size="large"
+                @pressEnter="submitLoginCallback($event)"
+                placeholder="密码"
+                v-model="loginForm.password"
+                type="password"
+              >
                 <a-icon slot="prefix" type="lock" />
               </a-input-password>
             </a-form-model-item>
@@ -81,7 +88,8 @@
 <script>
 import CommonLayout from '@/layouts/CommonLayout'
 import { getUserProfile, userLogin, userRegister } from '@/apis/user'
-import { setToken, setUserId, setUserInfo } from '@/utils/auth'
+import { setToken, setUserId } from '@/utils/auth'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'Login',
@@ -120,7 +128,7 @@ export default {
       registerFormRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 6, max: 150, message: '密码长度不能小于6个字符或超过150个字符', trigger: 'blur' }
+          { min: 6, max: 150, message: '用户名长度不能小于6个字符或超过150个字符', trigger: 'blur' }
         ],
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -145,6 +153,11 @@ export default {
     }
   },
   methods: {
+    ...mapMutations('account', ['setUser']),
+    // eslint-disable-next-line no-unused-vars
+    submitLoginCallback(e) {
+      this.submitLoginForm('loginRuleFormRef')
+    },
     changeActiveKey(key) {
       if (key === '2') {
         this.activeKey = '2'
@@ -163,7 +176,7 @@ export default {
               setUserId(res.data.user_id)
               // 获取当前登录用户的信息
               getUserProfile(res.data.user_id).then((res) => {
-                setUserInfo(res.data)
+                this.setUser(res.data)
               })
               this.$message.success(res.message)
               this.$router.push('/dashboard/workplace')
@@ -190,7 +203,7 @@ export default {
             this.$message.success(res.message)
             this.activeKey = '1'
           })
-          console.log('registerSubmit')
+          // console.log('registerSubmit')
         } else {
           console.log('error submit!!')
           return false

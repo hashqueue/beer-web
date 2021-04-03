@@ -31,6 +31,7 @@ const loginGuard = (to, from, next, options) => {
   if (!loginIgnore.includes(to) && !getToken()) {
     message.warning('登录已失效，请重新登录')
     next({ path: '/login' })
+    NProgress.done()
   } else {
     next()
   }

@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { removeToken } from '@/utils/auth'
 /*
 1. 如果发送get请求, 需要传参的话使用params
 2. 如果发送post/put/delete/patch请求, 需要传body类型的参数的话使用data
@@ -26,13 +25,18 @@ export function getUserProfile(userId) {
     method: 'get'
   })
 }
-export function logout() {
-  removeToken()
+
+export function updateUserProfile(userId, data) {
+  return request({
+    url: `/user/profile/${userId}/`,
+    method: 'patch',
+    data
+  })
 }
 
 export default {
   userLogin,
   userRegister,
   getUserProfile,
-  logout
+  updateUserProfile
 }
