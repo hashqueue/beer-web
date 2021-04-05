@@ -170,8 +170,7 @@ export default {
         if (valid) {
           userLogin(this.loginForm)
             .then((res) => {
-              this.loginForm.username = ''
-              this.loginForm.password = ''
+              this.resetForm('loginRuleFormRef')
               setToken(res.data.access)
               setUserId(res.data.user_id)
               // 获取当前登录用户的信息
@@ -196,10 +195,7 @@ export default {
           userRegister(this.registerForm).then((res) => {
             this.loginForm.username = this.registerForm.username
             this.loginForm.password = this.registerForm.password
-            this.registerForm.username = ''
-            this.registerForm.email = ''
-            this.registerForm.password = ''
-            this.registerForm.password_confirm = ''
+            this.resetForm('registerRuleFormRef')
             this.$message.success(res.message)
             this.activeKey = '1'
           })
@@ -209,6 +205,10 @@ export default {
           return false
         }
       })
+    },
+    // 重置表单数据
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
     }
   }
 }

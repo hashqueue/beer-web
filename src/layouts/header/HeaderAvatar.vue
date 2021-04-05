@@ -8,8 +8,7 @@
       <a-spin size="small" />
     </div>
     <a-menu :class="['avatar-menu']" slot="overlay">
-      <a-menu-divider />
-      <a-menu-item @click="logout">
+      <a-menu-item @click="logOut">
         <a-icon style="margin-right: 8px" type="poweroff" />
         <span>退出登录</span>
       </a-menu-item>
@@ -18,8 +17,8 @@
 </template>
 
 <script>
-import { removeToken, removeUserId } from '@/utils/auth'
 import { mapGetters, mapMutations } from 'vuex'
+import { logout } from '@/apis/user'
 
 export default {
   name: 'HeaderAvatar',
@@ -28,9 +27,8 @@ export default {
   },
   methods: {
     ...mapMutations('account', ['removeUser']),
-    logout() {
-      removeToken()
-      removeUserId()
+    logOut() {
+      logout()
       this.removeUser()
       this.$router.push('/login')
     }
