@@ -60,6 +60,10 @@ export default {
       state.user = user
       localStorage.setItem(process.env.VUE_APP_USER_KEY, JSON.stringify(user))
     },
+    removeUser(state) {
+      state.user = undefined
+      localStorage.removeItem(process.env.VUE_APP_USER_KEY)
+    },
     setPermissions(state, permissions) {
       state.permissions = permissions
       localStorage.setItem(process.env.VUE_APP_PERMISSIONS_KEY, JSON.stringify(permissions))
