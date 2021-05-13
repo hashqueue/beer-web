@@ -30,7 +30,7 @@ export function getUserProfile(userId) {
 export function updateUserProfile(userId, data) {
   return request({
     url: `/user/profile/${userId}/`,
-    method: 'patch',
+    method: 'put',
     data
   })
 }
