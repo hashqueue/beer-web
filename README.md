@@ -1,4 +1,4 @@
-# beer
+# beer-web
 
 ## Project setup
 ```
