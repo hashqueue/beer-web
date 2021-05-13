@@ -14,12 +14,13 @@
       <head-info title="测试用例数量" content="2647" />
     </template>
     <template slot="action">
-      <a-button type="primary" @click="showDrawer">修改个人信息</a-button>
+      <a-button type="primary" @click="showDrawer">更新个人信息</a-button>
       <a-drawer
         title="更新用户信息"
         :width="400"
         :visible="visible"
         :maskClosable="false"
+        :closable="closable"
         :body-style="{ paddingBottom: '80px' }"
         @close="onClose"
       >
@@ -60,6 +61,21 @@
               <a-icon slot="prefix" type="phone" />
             </a-input>
           </a-form-model-item>
+          <a-form-model-item prop="groups">
+            <a-select
+              mode="multiple"
+              style="width: 100%"
+              placeholder="所属用户组"
+              size="large"
+              @select="addSelectDataToGroups"
+              @deselect="removeSelectDataToGroups"
+              :defaultValue="updateUserForm.groups"
+            >
+              <a-select-option v-for="item in groupsListData" :key="item.id">
+                {{ item.name }}
+              </a-select-option>
+            </a-select>
+          </a-form-model-item>
           <a-button
             type="primary"
             style="width: 100%; margin-top: 24px"
@@ -81,7 +97,7 @@ import { mapState } from 'vuex'
 import PageLayout from '@/layouts/PageLayout'
 import HeadInfo from '@/components/tool/HeadInfo'
 import DetailList from '@/components/tool/DetailList'
-import { getUserProfile, logout, updateUserProfile } from '@/services/user'
+import { getUserProfile, logout, updateUserProfile, getGroupsList } from '@/services/user'
 import { getUserId } from '@/utils/auth'
 import { mapMutations } from 'vuex'
 const DetailListItem = DetailList.Item
@@ -90,6 +106,10 @@ export default {
   components: { HeadInfo, DetailList, PageLayout, DetailListItem },
   computed: {
     ...mapState('account', { currUser: 'user' })
+  },
+  created() {
+    this.getUserInfo()
+    this.getGroupsData()
   },
   data() {
     let validateMail = (rule, value, callback) => {
@@ -106,25 +126,53 @@ export default {
         email: '',
         department: '',
         position: '',
-        phone: ''
+        phone: '',
+        groups: []
       },
+      groupsListData: null,
+      closable: true,
       visible: false,
       updateUserFormRules: {
-        username: [{ min: 6, max: 150, message: '用户名长度不能小于6个字符或超过150个字符', trigger: 'change' }],
+        username: [
+          { min: 6, max: 150, message: '用户名长度不能小于6个字符或超过150个字符', trigger: 'change' },
+          { required: true, message: '请输入用户名', trigger: 'change' }
+        ],
         password: [{ min: 6, max: 128, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'change' }],
         email: [
           { min: 8, max: 254, message: '邮箱长度不能小于8个字符或超过254个字符', trigger: 'change' },
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
           { validator: validateMail, trigger: 'change' }
         ],
         department: [{ min: 1, max: 128, message: '邮箱长度不能小于1个字符或超过128个字符', trigger: 'change' }],
         position: [{ min: 1, max: 128, message: '职位长度不能小于1个字符或超过128个字符', trigger: 'change' }],
-        phone: [{ min: 11, max: 11, message: '电话长度必须为11个字符', trigger: 'change' }]
+        phone: [{ min: 11, max: 11, message: '电话长度必须为11个字符', trigger: 'change' }],
+        groups: [{ required: true, message: '请选择所属用户组', trigger: 'blur' }]
       }
     }
   },
   methods: {
     ...mapMutations('account', ['removeUser', 'setUser']),
-    // 获取当前登录用户的信息
+    addSelectDataToGroups(value) {
+      this.updateUserForm.groups.push(value)
+      // console.log(this.updateUserForm.groups)
+    },
+    removeSelectDataToGroups(value) {
+      // console.log(value)
+      let index = this.updateUserForm.groups.indexOf(value)
+      if (index !== -1) {
+        this.updateUserForm.groups.splice(index, 1)
+      } else {
+        // console.log(index)
+      }
+      // console.log(this.updateUserForm.groups)
+    },
+    // 获取当前登录用户所在的用户组信息
+    getGroupsData() {
+      getGroupsList().then((res) => {
+        this.groupsListData = res.data.results
+        // console.log(this.groupsListData)
+      })
+    },
     getUserInfo() {
       getUserProfile(getUserId()).then((res) => {
         this.updateUserForm.username = res.data.username
@@ -132,40 +180,57 @@ export default {
         this.updateUserForm.department = res.data.department
         this.updateUserForm.position = res.data.position
         this.updateUserForm.phone = res.data.phone
+        this.updateUserForm.groups = res.data.groups
+        if (this.updateUserForm.groups.length === 0) {
+          /**
+           * 如果用户第一次登入系统需要先完善用户信息
+           * @type {boolean}
+           */
+          this.closable = false
+          this.$message.info('您是第一次登录系统,请先完善用户信息!')
+          this.showDrawer()
+        }
       })
     },
     // 显示抽屉
     showDrawer() {
-      this.getUserInfo()
       this.visible = true
     },
     // 关闭抽屉
     onClose() {
-      this.resetForm('updateUserRuleFormRef')
+      // this.resetForm('updateUserRuleFormRef')
       this.visible = false
     },
     // 修改用户信息点击事件
-    submitUpdateUserForm() {
-      let updateUserInfoData = {}
-      for (let val in this.updateUserForm) {
-        if (this.updateUserForm[val] !== '') {
-          updateUserInfoData[val] = this.updateUserForm[val]
-        }
-      }
-      updateUserProfile(getUserId(), updateUserInfoData).then((res) => {
-        this.$message.success(res.message)
-        if (updateUserInfoData['password']) {
-          this.$message.info('登录已失效,请重新登录')
-          logout()
-          this.removeUser()
-          this.$router.push('/login')
-        } else {
-          // 获取当前登录用户的信息，更新store中的数据
-          getUserProfile(getUserId()).then((res) => {
-            this.setUser(res.data)
+    submitUpdateUserForm(formName) {
+      this.closable = this.updateUserForm.groups.length !== 0
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let updateUserInfoData = {}
+          for (let val in this.updateUserForm) {
+            if (this.updateUserForm[val] !== '') {
+              updateUserInfoData[val] = this.updateUserForm[val]
+            }
+          }
+          updateUserProfile(getUserId(), updateUserInfoData).then((res) => {
+            this.$message.success(res.message)
+            if (updateUserInfoData['password']) {
+              this.$message.info('登录已失效,请重新登录')
+              logout()
+              this.removeUser()
+              this.$router.push('/login')
+            } else {
+              // 获取当前登录用户的信息，更新store中的数据
+              getUserProfile(getUserId()).then((res) => {
+                this.setUser(res.data)
+              })
+              // 关闭抽屉
+              this.onClose()
+            }
           })
-          // 关闭抽屉
-          this.onClose()
+        } else {
+          console.log('error submit!!')
+          return false
         }
       })
     },

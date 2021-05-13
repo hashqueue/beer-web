@@ -35,6 +35,13 @@ export function updateUserProfile(userId, data) {
   })
 }
 
+export function getGroupsList() {
+  return request({
+    url: '/groups/',
+    method: 'get'
+  })
+}
+
 export function logout() {
   removeToken()
   removeUserId()
@@ -45,5 +52,6 @@ export default {
   userRegister,
   getUserProfile,
   updateUserProfile,
+  getGroupsList,
   logout
 }
