@@ -47,6 +47,14 @@ const options = {
               component: () => import('@/views/dashboard/workplace')
             }
           ]
+        },
+        {
+          path: 'projects',
+          name: '项目管理',
+          meta: {
+            icon: 'project'
+          },
+          component: () => import('@/views/projects/ProjectManagement')
         }
       ]
     }
