@@ -108,13 +108,42 @@ export default {
     ...mapState('account', { currUser: 'user' })
   },
   created() {
-    this.getUserInfo()
-    this.getGroupsData()
+    getUserProfile(getUserId()).then((res) => {
+      this.updateUserForm.username = res.data.username
+      this.updateUserForm.email = res.data.email
+      this.updateUserForm.department = res.data.department
+      this.updateUserForm.position = res.data.position
+      this.updateUserForm.phone = res.data.phone
+      this.updateUserForm.groups = res.data.groups
+      if (this.updateUserForm.groups.length === 0) {
+        /**
+         * 如果用户第一次登入系统需要先完善用户信息
+         * @type {boolean}
+         */
+        this.closable = false
+        this.$message.info('第一次登录系统,请先完善用户信息!', 10)
+        this.showDrawer()
+      }
+    })
+    // 获取所有的用户组信息
+    getGroupsList().then((res) => {
+      this.groupsListData = res.data.results
+      // console.log(this.groupsListData)
+    })
   },
   data() {
     let validateMail = (rule, value, callback) => {
       if (!/\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/g.test(value)) {
         callback(new Error('输入的邮箱格式不对'))
+      } else {
+        callback()
+      }
+    }
+    let validatePhone = (rule, value, callback) => {
+      if (value === '') {
+        callback()
+      } else if (!/(13\d|14[579]|15[^4\D]|17[^49\D]|18\d)\d{8}/g.test(value)) {
+        callback(new Error('输入的手机号格式不对'))
       } else {
         callback()
       }
@@ -145,7 +174,10 @@ export default {
         ],
         department: [{ min: 1, max: 128, message: '邮箱长度不能小于1个字符或超过128个字符', trigger: 'change' }],
         position: [{ min: 1, max: 128, message: '职位长度不能小于1个字符或超过128个字符', trigger: 'change' }],
-        phone: [{ min: 11, max: 11, message: '电话长度必须为11个字符', trigger: 'change' }],
+        phone: [
+          { min: 11, max: 11, message: '电话长度必须为11个字符', trigger: 'change' },
+          { validator: validatePhone, trigger: 'change' }
+        ],
         groups: [{ required: true, message: '请选择所属用户组', trigger: 'blur' }]
       }
     }
@@ -166,39 +198,12 @@ export default {
       }
       // console.log(this.updateUserForm.groups)
     },
-    // 获取当前登录用户所在的用户组信息
-    getGroupsData() {
-      getGroupsList().then((res) => {
-        this.groupsListData = res.data.results
-        // console.log(this.groupsListData)
-      })
-    },
-    getUserInfo() {
-      getUserProfile(getUserId()).then((res) => {
-        this.updateUserForm.username = res.data.username
-        this.updateUserForm.email = res.data.email
-        this.updateUserForm.department = res.data.department
-        this.updateUserForm.position = res.data.position
-        this.updateUserForm.phone = res.data.phone
-        this.updateUserForm.groups = res.data.groups
-        if (this.updateUserForm.groups.length === 0) {
-          /**
-           * 如果用户第一次登入系统需要先完善用户信息
-           * @type {boolean}
-           */
-          this.closable = false
-          this.$message.info('您是第一次登录系统,请先完善用户信息!')
-          this.showDrawer()
-        }
-      })
-    },
-    // 显示抽屉
     showDrawer() {
       this.visible = true
     },
     // 关闭抽屉
     onClose() {
-      // this.resetForm('updateUserRuleFormRef')
+      this.resetForm('updateUserRuleFormRef')
       this.visible = false
     },
     // 修改用户信息点击事件
@@ -222,10 +227,16 @@ export default {
             } else {
               // 获取当前登录用户的信息，更新store中的数据
               getUserProfile(getUserId()).then((res) => {
+                // 关闭抽屉
+                this.onClose()
+                this.updateUserForm.username = res.data.username
+                this.updateUserForm.email = res.data.email
+                this.updateUserForm.department = res.data.department
+                this.updateUserForm.position = res.data.position
+                this.updateUserForm.phone = res.data.phone
+                this.updateUserForm.groups = res.data.groups
                 this.setUser(res.data)
               })
-              // 关闭抽屉
-              this.onClose()
             }
           })
         } else {
