@@ -56,16 +56,9 @@
     </div>
     <div>
       <a-space class="operator">
-        <a-button @click="addNew" type="primary">新建</a-button>
-        <a-button>批量操作</a-button>
-        <a-dropdown>
-          <a-menu @click="handleMenuClick" slot="overlay">
-            <a-menu-item key="delete">删除</a-menu-item>
-            <a-menu-item key="audit">审批</a-menu-item>
-          </a-menu>
-          <a-button> 更多操作 <a-icon type="down" /> </a-button>
-        </a-dropdown>
+        <a-button @click="createNewProject" type="primary">新建项目</a-button>
       </a-space>
+      <create-project ref="createProjectForm" :visible="visible" @cancel="handleCancel" @create="handleCreate" />
       <standard-table
         :bordered="true"
         :columns="columns"
@@ -99,7 +92,8 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import { getProjectsDataList } from '@/services/projects'
+import CreateProject from '@/views/projects/CreateProject'
+import { getProjectsDataList, createProject } from '@/services/projects'
 
 const columns = [
   {
@@ -140,7 +134,7 @@ const columns = [
 
 export default {
   name: 'ProjectManagement',
-  components: { StandardTable },
+  components: { StandardTable, CreateProject },
   created() {
     // 获取项目列表数据
     getProjectsDataList().then((res) => {
@@ -162,10 +156,46 @@ export default {
       dataSource: [],
       selectedRows: [],
       pagination: {},
-      loading: false
+      loading: false,
+      visible: false
     }
   },
   methods: {
+    showCreateNewProjectModal() {
+      this.visible = true
+    },
+    handleCancel() {
+      this.visible = false
+    },
+    handleCreate() {
+      const form = this.$refs.createProjectForm.form
+      form.validateFields((err, values) => {
+        if (err) {
+          return false
+        }
+        // 删除无效数据
+        for (let key of Object.keys(values)) {
+          if (values[key] === undefined || values[key] === '') {
+            delete values[key]
+          }
+        }
+        // 创建项目
+        createProject(values).then((res) => {
+          this.$message.success(res.message)
+          this.loading = true
+          // 重新获取项目列表数据并更新数据
+          getProjectsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
+            this.dataSource = res.data.results
+            this.pagination.total = res.data.count
+            this.pagination.current = res.data.current_page_num
+            this.pagination.showTotal = () => `共 ${res.data.count} 条`
+            this.loading = false
+          })
+        })
+        form.resetFields()
+        this.visible = false
+      })
+    },
     deleteRecord(key) {
       console.log(key)
       // this.dataSource = this.dataSource.filter((item) => item.key !== key)
@@ -202,20 +232,8 @@ export default {
     onSelectChange() {
       this.$message.info('选中行改变了')
     },
-    addNew() {
-      this.dataSource.unshift({
-        key: this.dataSource.length,
-        no: 'NO ' + this.dataSource.length,
-        description: '这是一段描述',
-        callNo: Math.floor(Math.random() * 1000),
-        status: Math.floor(Math.random() * 10) % 4,
-        updatedAt: '2018-07-26'
-      })
-    },
-    handleMenuClick(e) {
-      if (e.key === 'delete') {
-        this.remove()
-      }
+    createNewProject() {
+      this.showCreateNewProjectModal()
     }
   }
 }

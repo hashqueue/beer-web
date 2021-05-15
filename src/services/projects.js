@@ -12,6 +12,15 @@ export function getProjectsDataList(params) {
   })
 }
 
+export function createProject(data) {
+  return request({
+    url: '/projects/',
+    method: 'post',
+    data
+  })
+}
+
 export default {
-  getProjectsDataList
+  getProjectsDataList,
+  createProject
 }

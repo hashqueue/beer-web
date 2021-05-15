@@ -163,19 +163,19 @@ export default {
       visible: false,
       updateUserFormRules: {
         username: [
-          { min: 6, max: 150, message: '用户名长度不能小于6个字符或超过150个字符', trigger: 'change' },
+          { min: 6, max: 150, message: '用户名不能小于6个字符或超过150个字符', trigger: 'change' },
           { required: true, message: '请输入用户名', trigger: 'change' }
         ],
-        password: [{ min: 6, max: 128, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'change' }],
+        password: [{ min: 6, max: 128, message: '密码不能小于6个字符或超过128个字符', trigger: 'change' }],
         email: [
-          { min: 8, max: 254, message: '邮箱长度不能小于8个字符或超过254个字符', trigger: 'change' },
+          { min: 8, max: 254, message: '邮箱不能小于8个字符或超过254个字符', trigger: 'change' },
           { required: true, message: '请输入邮箱', trigger: 'blur' },
           { validator: validateMail, trigger: 'change' }
         ],
-        department: [{ min: 1, max: 128, message: '邮箱长度不能小于1个字符或超过128个字符', trigger: 'change' }],
-        position: [{ min: 1, max: 128, message: '职位长度不能小于1个字符或超过128个字符', trigger: 'change' }],
+        department: [{ min: 1, max: 128, message: '邮箱不能小于1个字符或超过128个字符', trigger: 'change' }],
+        position: [{ min: 1, max: 128, message: '职位不能小于1个字符或超过128个字符', trigger: 'change' }],
         phone: [
-          { min: 11, max: 11, message: '电话长度必须为11个字符', trigger: 'change' },
+          { min: 11, max: 11, message: '电话必须为11个字符', trigger: 'change' },
           { validator: validatePhone, trigger: 'change' }
         ],
         groups: [{ required: true, message: '请选择所属用户组', trigger: 'blur' }]
@@ -212,9 +212,9 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           let updateUserInfoData = {}
-          for (let val in this.updateUserForm) {
-            if (this.updateUserForm[val] !== '') {
-              updateUserInfoData[val] = this.updateUserForm[val]
+          for (let key of Object.keys(this.updateUserForm)) {
+            if (this.updateUserForm[key] !== undefined && this.updateUserForm[key] !== '') {
+              updateUserInfoData[key] = this.updateUserForm[key]
             }
           }
           updateUserProfile(getUserId(), updateUserInfoData).then((res) => {

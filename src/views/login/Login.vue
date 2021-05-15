@@ -133,20 +133,20 @@ export default {
       registerFormRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 6, max: 150, message: '用户名长度不能小于6个字符或超过150个字符', trigger: 'blur' }
+          { min: 6, max: 150, message: '用户名不能小于6个字符或超过150个字符', trigger: 'blur' }
         ],
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
-          { min: 8, max: 254, message: '邮箱长度不能小于8个字符或超过254个字符', trigger: 'blur' },
+          { min: 8, max: 254, message: '邮箱不能小于8个字符或超过254个字符', trigger: 'blur' },
           { validator: validateMail, trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 128, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'blur' }
+          { min: 6, max: 128, message: '密码不能小于6个字符或超过128个字符', trigger: 'blur' }
         ],
         password_confirm: [
           { required: true, message: '请输入确认密码', trigger: 'blur' },
-          { min: 6, max: 128, message: '密码长度不能小于6个字符或超过128个字符', trigger: 'blur' },
+          { min: 6, max: 128, message: '密码不能小于6个字符或超过128个字符', trigger: 'blur' },
           { validator: validatePasswordConfirm, trigger: 'blur' }
         ]
       }
