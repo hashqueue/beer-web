@@ -20,7 +20,23 @@ export function createProject(data) {
   })
 }
 
+export function getProjectDetail(projectId) {
+  return request({
+    url: `/projects/${projectId}/`,
+    method: 'get'
+  })
+}
+
+export function updateProjectDetail(projectId, data) {
+  return request({
+    url: `/projects/${projectId}/`,
+    method: 'put',
+    data
+  })
+}
+
 export default {
   getProjectsDataList,
-  createProject
+  createProject,
+  getProjectDetail
 }

@@ -58,7 +58,14 @@
       <a-space class="operator">
         <a-button @click="createNewProject" type="primary">新建项目</a-button>
       </a-space>
-      <create-project ref="createProjectForm" :visible="visible" @cancel="handleCancel" @create="handleCreate" />
+      <create-update-project
+        ref="ProjectForm"
+        :visible="visible"
+        :title="title"
+        :projectId="projectId"
+        @cancel="handleCancel"
+        @createOrEditProjectDone="createOrEditProjectDone"
+      />
       <standard-table
         :bordered="true"
         :columns="columns"
@@ -75,11 +82,8 @@
           {{ text }}
         </div>
         <div slot="action" slot-scope="{ text, record }">
-          <a style="margin-right: 8px"> <a-icon type="edit" />编辑 </a>
+          <a style="margin-right: 8px" @click="editProject(record.id)"> <a-icon type="edit" />编辑 </a>
           <a style="margin-right: 8px" @click="deleteRecord(record.id)"> <a-icon type="delete" />删除</a>
-          <router-link style="margin-right: 8px" :to="`/list/query/detail/${record.key}`"
-            ><a-icon type="link" />详情</router-link
-          >
           <a @click="deleteRecord(record.id)"> <a-icon type="play-circle" />运行</a>
         </div>
         <template slot="statusTitle">
@@ -92,8 +96,8 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import CreateProject from '@/views/projects/CreateProject'
-import { getProjectsDataList, createProject } from '@/services/projects'
+import CreateUpdateProject from '@/views/projects/CreateUpdateProject'
+import { getProjectsDataList, getProjectDetail } from '@/services/projects'
 
 const columns = [
   {
@@ -134,7 +138,7 @@ const columns = [
 
 export default {
   name: 'ProjectManagement',
-  components: { StandardTable, CreateProject },
+  components: { StandardTable, CreateUpdateProject },
   created() {
     // 获取项目列表数据
     getProjectsDataList().then((res) => {
@@ -157,44 +161,45 @@ export default {
       selectedRows: [],
       pagination: {},
       loading: false,
-      visible: false
+      visible: false,
+      title: '新建项目',
+      projectId: null
     }
   },
   methods: {
-    showCreateNewProjectModal() {
+    createNewProject() {
+      this.title = '新建项目'
       this.visible = true
+    },
+    createOrEditProjectDone() {
+      this.handleCancel()
+      this.refreshProjectsDataList()
+    },
+    refreshProjectsDataList() {
+      this.loading = true
+      // 重新获取项目列表数据并更新数据
+      getProjectsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
+        this.dataSource = res.data.results
+        this.pagination.total = res.data.count
+        this.pagination.current = res.data.current_page_num
+        this.pagination.showTotal = () => `共 ${res.data.count} 条`
+        this.loading = false
+      })
+    },
+    editProject(key) {
+      getProjectDetail(key).then((res) => {
+        this.$refs.ProjectForm.form.setFieldsValue({
+          project_name: res.data.project_name,
+          project_desc: res.data.project_desc
+        })
+        this.title = '编辑项目'
+        this.visible = true
+        this.projectId = key
+      })
     },
     handleCancel() {
       this.visible = false
-    },
-    handleCreate() {
-      const form = this.$refs.createProjectForm.form
-      form.validateFields((err, values) => {
-        if (err) {
-          return false
-        }
-        // 删除无效数据
-        for (let key of Object.keys(values)) {
-          if (values[key] === undefined || values[key] === '') {
-            delete values[key]
-          }
-        }
-        // 创建项目
-        createProject(values).then((res) => {
-          this.$message.success(res.message)
-          this.loading = true
-          // 重新获取项目列表数据并更新数据
-          getProjectsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
-            this.dataSource = res.data.results
-            this.pagination.total = res.data.count
-            this.pagination.current = res.data.current_page_num
-            this.pagination.showTotal = () => `共 ${res.data.count} 条`
-            this.loading = false
-          })
-        })
-        form.resetFields()
-        this.visible = false
-      })
+      this.$refs.ProjectForm.form.resetFields()
     },
     deleteRecord(key) {
       console.log(key)
@@ -231,9 +236,6 @@ export default {
     },
     onSelectChange() {
       this.$message.info('选中行改变了')
-    },
-    createNewProject() {
-      this.showCreateNewProjectModal()
     }
   }
 }
