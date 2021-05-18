@@ -54,6 +54,7 @@ export default {
   getProjectsDataList,
   createProject,
   getProjectDetail,
+  updateProjectDetail,
   deleteDetailProject,
   runDetailProject
 }
