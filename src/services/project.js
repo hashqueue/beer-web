@@ -35,8 +35,25 @@ export function updateProjectDetail(projectId, data) {
   })
 }
 
+export function deleteDetailProject(projectId) {
+  return request({
+    url: `/projects/${projectId}/`,
+    method: 'delete'
+  })
+}
+
+export function runDetailProject(projectId, data) {
+  return request({
+    url: `/projects/${projectId}/run/`,
+    method: 'post',
+    data
+  })
+}
+
 export default {
   getProjectsDataList,
   createProject,
-  getProjectDetail
+  getProjectDetail,
+  deleteDetailProject,
+  runDetailProject
 }

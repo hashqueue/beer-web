@@ -33,29 +33,33 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   (response) => {
-    const resData = response.data
-    // if the custom code is not 20000, it is judged as an error.
-    if (resData.code !== 20000) {
-      notice(resData.message || '未知错误 ===> code!=20000')
-      return Promise.reject(new Error(resData.message || '未知错误 ===> code!=20000'))
+    if (response.status === 204) {
+      console.log(response.status)
     } else {
-      return resData
+      const resData = response.data
+      // if the custom code is not 20000, it is judged as an error.
+      if (resData.code !== 20000) {
+        notice(resData.message || '未知错误 ===> code!=20000')
+        return Promise.reject(new Error(resData.message || '未知错误 ===> code!=20000'))
+      } else {
+        return resData
+      }
     }
   },
   (error) => {
     const resErrorData = error.response.data
     if (error.response.status === 400) {
-      notice(JSON.stringify(resErrorData.message) || '未知错误 ===> 400')
+      notice(JSON.stringify(resErrorData.message) || '未知错误 ===> status_code=400')
     } else if (error.response.status === 401) {
-      notice(resErrorData.message || '未知错误 ===> 401')
+      notice(resErrorData.message || '未知错误 ===> status_code=401')
     } else if (error.response.status === 403) {
-      notice(resErrorData.message || '未知错误 ===> 403')
+      notice(resErrorData.message || '未知错误 ===> status_code=403')
     } else if (error.response.status === 404) {
-      notice(resErrorData.message || '未知错误 ===> 404')
+      notice(resErrorData.message || '未知错误 ===> status_code=404')
     } else if (error.response.status === 500) {
       notice('服务器出现了未知错误,请联系站点管理员')
     } else {
-      notice(resErrorData.message || `未知错误 ===> ${error.response.status}`)
+      notice(resErrorData.message || `未知错误 ===> status_code=${error.response.status}`)
     }
     // console.log(error.message);
     return Promise.reject(error)

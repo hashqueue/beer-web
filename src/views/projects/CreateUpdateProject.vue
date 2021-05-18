@@ -5,7 +5,7 @@
     okText="保存"
     @cancel="
       () => {
-        $emit('cancel')
+        $emit('cancel', title)
       }
     "
     @ok="handleOk"
@@ -38,13 +38,12 @@
 </template>
 
 <script>
-import { createProject, updateProjectDetail } from '@/services/projects'
+import { createProject, updateProjectDetail } from '@/services/project'
 export default {
   name: 'CreateUpdateProject',
   props: ['visible', 'title', 'projectId'],
   data() {
     return {
-      formLayout: 'horizontal',
       form: this.$form.createForm(this, { name: 'project_form' })
     }
   },

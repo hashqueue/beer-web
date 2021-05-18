@@ -59,12 +59,18 @@
         <a-button @click="createNewProject" type="primary">新建项目</a-button>
       </a-space>
       <create-update-project
-        ref="ProjectForm"
-        :visible="visible"
-        :title="title"
-        :projectId="projectId"
+        ref="projectFormRef"
+        :visible="projectForm.visible"
+        :title="projectForm.title"
+        :projectId="projectForm.projectId"
         @cancel="handleCancel"
         @createOrEditProjectDone="createOrEditProjectDone"
+      />
+      <run-project
+        ref="runProjectFormRef"
+        :visible="runProjectForm.visible"
+        :projectId="runProjectForm.projectId"
+        @cancel="handleCancel"
       />
       <standard-table
         :bordered="true"
@@ -83,8 +89,8 @@
         </div>
         <div slot="action" slot-scope="{ text, record }">
           <a style="margin-right: 8px" @click="editProject(record.id)"> <a-icon type="edit" />编辑 </a>
-          <a style="margin-right: 8px" @click="deleteRecord(record.id)"> <a-icon type="delete" />删除</a>
-          <a @click="deleteRecord(record.id)"> <a-icon type="play-circle" />运行</a>
+          <a style="margin-right: 8px" @click="deleteProject(record.id)"> <a-icon type="delete" />删除</a>
+          <a @click="runProject(record.id)"> <a-icon type="play-circle" />运行</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -97,7 +103,8 @@
 <script>
 import StandardTable from '@/components/table/StandardTable'
 import CreateUpdateProject from '@/views/projects/CreateUpdateProject'
-import { getProjectsDataList, getProjectDetail } from '@/services/projects'
+import RunProject from '@/views/projects/RunProject'
+import { getProjectsDataList, getProjectDetail, deleteDetailProject } from '@/services/project'
 
 const columns = [
   {
@@ -138,7 +145,7 @@ const columns = [
 
 export default {
   name: 'ProjectManagement',
-  components: { StandardTable, CreateUpdateProject },
+  components: { StandardTable, CreateUpdateProject, RunProject },
   created() {
     // 获取项目列表数据
     getProjectsDataList().then((res) => {
@@ -161,20 +168,32 @@ export default {
       selectedRows: [],
       pagination: {},
       loading: false,
-      visible: false,
-      title: '新建项目',
-      projectId: null
+      projectForm: {
+        visible: false,
+        title: '新建项目',
+        projectId: null
+      },
+      runProjectForm: {
+        visible: false,
+        projectId: null
+      }
     }
   },
   methods: {
+    runProject(key) {
+      this.runProjectForm.visible = true
+      this.runProjectForm.projectId = key
+    },
+    // 创建新项目
     createNewProject() {
-      this.title = '新建项目'
-      this.visible = true
+      this.projectForm.title = '新建项目'
+      this.projectForm.visible = true
     },
     createOrEditProjectDone() {
       this.handleCancel()
       this.refreshProjectsDataList()
     },
+    // 刷新项目列表数据
     refreshProjectsDataList() {
       this.loading = true
       // 重新获取项目列表数据并更新数据
@@ -186,25 +205,48 @@ export default {
         this.loading = false
       })
     },
+    // 编辑单个项目
     editProject(key) {
       getProjectDetail(key).then((res) => {
-        this.$refs.ProjectForm.form.setFieldsValue({
+        this.$refs.projectFormRef.form.setFieldsValue({
           project_name: res.data.project_name,
           project_desc: res.data.project_desc
         })
-        this.title = '编辑项目'
-        this.visible = true
-        this.projectId = key
+        this.projectForm.title = '编辑项目'
+        this.projectForm.visible = true
+        this.projectForm.projectId = key
       })
     },
-    handleCancel() {
-      this.visible = false
-      this.$refs.ProjectForm.form.resetFields()
+    handleCancel(title) {
+      if (title === '运行项目') {
+        this.runProjectForm.visible = false
+        this.$refs.runProjectFormRef.form.resetFields()
+      } else {
+        this.projectForm.visible = false
+        this.$refs.projectFormRef.form.resetFields()
+      }
     },
-    deleteRecord(key) {
-      console.log(key)
-      // this.dataSource = this.dataSource.filter((item) => item.key !== key)
-      // this.selectedRows = this.selectedRows.filter((item) => item.key !== key)
+    // 删除单个项目
+    deleteProject(key) {
+      // confirm中使用self来访问当前组件中的this
+      let self = this
+      // 删除项目确认对话框
+      this.$confirm({
+        title: '确定要删除此项目吗?',
+        content: '删除此项目后,会连带删除此项目下的所有的 测试套件,配置项,全局函数,测试用例',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk() {
+          deleteDetailProject(key).then(() => {
+            self.$message.success('删除成功')
+            self.refreshProjectsDataList()
+          })
+        },
+        onCancel() {
+          console.log('Cancel')
+        }
+      })
     },
     toggleAdvanced() {
       this.advanced = !this.advanced
