@@ -74,7 +74,7 @@ export default {
           })
         })
       } else {
-        // 运行项目时bu使用配置
+        // 运行项目时不使用配置
         runDetailProject(this.projectId).then((res) => {
           this.$message.success(res.message)
           this.form.resetFields()

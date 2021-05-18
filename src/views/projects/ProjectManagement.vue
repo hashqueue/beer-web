@@ -1,56 +1,34 @@
 <template>
   <a-card>
     <div :class="advanced ? 'search' : null">
-      <a-form layout="horizontal">
+      <a-form layout="horizontal" :form="projectCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
           <a-row>
-            <a-col :md="8" :sm="24">
-              <a-form-item label="规则编号" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input placeholder="请输入" />
+            <a-col :md="6" :sm="24">
+              <a-form-item label="项目名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['project_name']" />
               </a-form-item>
             </a-col>
-            <a-col :md="8" :sm="24">
-              <a-form-item label="使用状态" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-select placeholder="请选择">
-                  <a-select-option value="1">关闭</a-select-option>
-                  <a-select-option value="2">运行中</a-select-option>
-                </a-select>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="项目描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['project_desc']" />
               </a-form-item>
             </a-col>
-            <a-col :md="8" :sm="24">
-              <a-form-item label="调用次数" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input-number style="width: 100%" placeholder="请输入" />
+            <a-col :md="6" :sm="24">
+              <a-form-item label="创建人" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['creator']" />
               </a-form-item>
             </a-col>
-          </a-row>
-          <a-row v-if="advanced">
-            <a-col :md="8" :sm="24">
-              <a-form-item label="更新日期" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-date-picker style="width: 100%" placeholder="请输入更新日期" />
-              </a-form-item>
-            </a-col>
-            <a-col :md="8" :sm="24">
-              <a-form-item label="使用状态" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-select placeholder="请选择">
-                  <a-select-option value="1">关闭</a-select-option>
-                  <a-select-option value="2">运行中</a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-            <a-col :md="8" :sm="24">
-              <a-form-item label="描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input placeholder="请输入" />
+            <a-col :md="6" :sm="24">
+              <a-form-item label="最近修改人" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['modifier']" />
               </a-form-item>
             </a-col>
           </a-row>
         </div>
         <span style="float: right; margin-top: 3px">
-          <a-button type="primary">查询</a-button>
-          <a-button style="margin-left: 8px">重置</a-button>
-          <a @click="toggleAdvanced" style="margin-left: 8px">
-            {{ advanced ? '收起' : '展开' }}
-            <a-icon :type="advanced ? 'up' : 'down'" />
-          </a>
+          <a-button type="primary" @click="combinationQuery">查询</a-button>
+          <a-button style="margin-left: 8px" @click="combinationReset">重置</a-button>
         </span>
       </a-form>
     </div>
@@ -162,11 +140,13 @@ export default {
   },
   data() {
     return {
+      projectCombinationQueryForm: this.$form.createForm(this, { name: 'project_combination_query_form' }),
       advanced: true,
       columns: columns,
       dataSource: [],
       selectedRows: [],
       pagination: {},
+      filters: {},
       loading: false,
       projectForm: {
         visible: false,
@@ -180,6 +160,46 @@ export default {
     }
   },
   methods: {
+    combinationQuery() {
+      this.projectCombinationQueryForm.validateFields((err, values) => {
+        if (err) {
+          return false
+        }
+        // 删除无效数据
+        for (let key of Object.keys(values)) {
+          if (values[key] === undefined || values[key] === '') {
+            delete values[key]
+          }
+        }
+        this.loading = true
+        // 重新获取项目列表数据(传入过滤参数)并更新数据
+        values.page = this.pagination.current
+        values.size = this.pagination.pageSize
+        getProjectsDataList(values).then((res) => {
+          this.filters = values
+          this.dataSource = res.data.results
+          this.pagination.total = res.data.count
+          this.pagination.current = res.data.current_page_num
+          this.pagination.showTotal = () => `共 ${res.data.count} 条`
+          this.loading = false
+        })
+      })
+    },
+    combinationReset() {
+      // 清空表单数据
+      this.projectCombinationQueryForm.resetFields()
+      // 刷新列表数据
+      this.loading = true
+      // 重新获取项目列表数据(传入过滤参数)并更新数据
+      getProjectsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
+        this.dataSource = res.data.results
+        this.filters = {}
+        this.pagination.total = res.data.count
+        this.pagination.current = res.data.current_page_num
+        this.pagination.showTotal = () => `共 ${res.data.count} 条`
+        this.loading = false
+      })
+    },
     runProject(key) {
       this.runProjectForm.visible = true
       this.runProjectForm.projectId = key
@@ -196,8 +216,11 @@ export default {
     // 刷新项目列表数据
     refreshProjectsDataList() {
       this.loading = true
+      let filters = this.filters
+      filters.page = this.pagination.current
+      filters.size = this.pagination.pageSize
       // 重新获取项目列表数据并更新数据
-      getProjectsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
+      getProjectsDataList(filters).then((res) => {
         this.dataSource = res.data.results
         this.pagination.total = res.data.count
         this.pagination.current = res.data.current_page_num
@@ -213,8 +236,8 @@ export default {
           project_desc: res.data.project_desc
         })
         this.projectForm.title = '编辑项目'
-        this.projectForm.visible = true
         this.projectForm.projectId = key
+        this.projectForm.visible = true
       })
     },
     handleCancel(title) {
@@ -248,36 +271,34 @@ export default {
         }
       })
     },
-    toggleAdvanced() {
-      this.advanced = !this.advanced
-    },
-    remove() {
-      this.dataSource = this.dataSource.filter(
-        (item) => this.selectedRows.findIndex((row) => row.key === item.key) === -1
-      )
-      this.selectedRows = []
-    },
     onClear() {
       this.$message.info('您清空了勾选的所有行')
+      console.log('您清空了勾选的所有行')
     },
     onStatusTitleClick() {
       this.$message.info('你点击了状态栏表头')
+      console.log('你点击了状态栏表头')
     },
     onChange(pagination, filters, sorter, { currentDataSource }) {
       this.loading = true
-      getProjectsDataList({ page: pagination.current, size: pagination.pageSize }).then((res) => {
+      // 页码变化时传入筛选条件
+      filters = this.filters
+      filters.page = pagination.current
+      filters.size = pagination.pageSize
+      getProjectsDataList(filters).then((res) => {
         this.dataSource = res.data.results
         this.pagination = pagination
         this.loading = false
       })
-      console.log(pagination)
-      console.log(filters)
+      // console.log(pagination)
+      // console.log(filters)
       console.log(sorter)
       console.log(currentDataSource)
-      console.log('------------------------------------------------------------------------------------------')
+      // console.log('------------------------------------------------------------------------------------------')
     },
     onSelectChange() {
-      this.$message.info('选中行改变了')
+      // this.$message.info('选中行改变了')
+      console.log('选中行改变了')
     }
   }
 }

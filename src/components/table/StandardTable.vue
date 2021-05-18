@@ -4,7 +4,8 @@
       <a-alert type="info" :show-icon="true" v-if="selectedRows">
         <div class="message" slot="message">
           已选择&nbsp;<a>{{ selectedRows.length }}</a
-          >&nbsp;项 <a class="clear" @click="onClear">清空</a>
+          >&nbsp;项 <a class="clear" style="margin-left: 5px" @click="onClear" disabled>删除</a
+          ><a class="clear" @click="onClear" disabled>运行</a>
           <template v-for="(item, index) in needTotalList">
             <div v-if="item.needTotal" :key="index">
               {{ item.title }}总计&nbsp;
