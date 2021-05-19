@@ -54,7 +54,15 @@ const options = {
           meta: {
             icon: 'project'
           },
-          component: () => import('@/views/projects/ProjectManagement')
+          component: () => import('@/views/projects')
+        },
+        {
+          path: 'testsuites',
+          name: '套件管理',
+          meta: {
+            icon: 'appstore'
+          },
+          component: () => import('@/views/testsuites')
         }
       ]
     }

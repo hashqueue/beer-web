@@ -18,7 +18,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import { logout } from '@/services/user'
+import { logout } from '@/services/users'
 
 export default {
   name: 'HeaderAvatar',

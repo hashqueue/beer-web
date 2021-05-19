@@ -1,17 +1,17 @@
 <template>
   <a-card>
     <div :class="advanced ? 'search' : null">
-      <a-form layout="horizontal" :form="projectCombinationQueryForm">
+      <a-form layout="horizontal" :form="testsuiteCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
           <a-row>
             <a-col :md="6" :sm="24">
-              <a-form-item label="项目名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input placeholder="请输入" allowClear v-decorator="['project_name']" />
+              <a-form-item label="套件名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['testsuite_name']" />
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
-              <a-form-item label="项目描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input placeholder="请输入" allowClear v-decorator="['project_desc']" />
+              <a-form-item label="套件描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['testsuite_desc']" />
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
@@ -34,20 +34,22 @@
     </div>
     <div>
       <a-space class="operator">
-        <a-button @click="createNewProject" type="primary">新建项目</a-button>
+        <a-button @click="createNewTestSuite" type="primary">新建套件</a-button>
       </a-space>
-      <create-update-project
-        ref="projectFormRef"
-        :visible="projectForm.visible"
-        :title="projectForm.title"
-        :projectId="projectForm.projectId"
+      <create-update-test-suites
+        ref="testsuiteFormRef"
+        :visible="testsuiteForm.visible"
+        :title="testsuiteForm.title"
+        :testsuiteId="testsuiteForm.testsuiteId"
+        :projectDataList="testsuiteForm.projectDataList"
         @cancel="handleCancel"
-        @createOrEditProjectDone="createOrEditProjectDone"
+        @createOrEditTestSuiteDone="createOrEditTestSuiteDone"
+        @updateProjectDataList="updateProjectDataList"
       />
-      <run-project
-        ref="runProjectFormRef"
-        :visible="runProjectForm.visible"
-        :projectId="runProjectForm.projectId"
+      <run-test-suites
+        ref="runTestSuiteFormRef"
+        :visible="runTestSuiteForm.visible"
+        :testsuiteId="runTestSuiteForm.testsuiteId"
         @cancel="handleCancel"
       />
       <standard-table
@@ -66,9 +68,9 @@
           {{ text }}
         </div>
         <div slot="action" slot-scope="{ text, record }">
-          <a style="margin-right: 8px" @click="editProject(record.id)"> <a-icon type="edit" />编辑 </a>
-          <a style="margin-right: 8px" @click="deleteProject(record.id)"> <a-icon type="delete" />删除</a>
-          <a @click="runProject(record.id)"> <a-icon type="play-circle" />运行</a>
+          <a style="margin-right: 8px" @click="editTestSuite(record.id)"> <a-icon type="edit" />编辑 </a>
+          <a style="margin-right: 8px" @click="deleteTestSuite(record.id)"> <a-icon type="delete" />删除</a>
+          <a @click="runTestSuite(record.id)"> <a-icon type="play-circle" />运行</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -80,9 +82,10 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import CreateUpdateProject from '@/views/projects/CreateUpdateProject'
-import RunProject from '@/views/projects/RunProject'
-import { getProjectsDataList, getProjectDetail, deleteDetailProject } from '@/services/project'
+import CreateUpdateTestSuites from '@/views/testsuites/CreateUpdateTestSuites'
+import RunTestSuites from '@/views/testsuites/RunTestSuites'
+import { getTestSuitesDataList, getTestSuiteDetail, deleteDetailTestSuite } from '@/services/testsuites'
+import { getProjectsDataList, getProjectDetail } from '@/services/projects'
 
 const columns = [
   {
@@ -90,12 +93,16 @@ const columns = [
     dataIndex: 'id'
   },
   {
-    title: '项目名称',
-    dataIndex: 'project_name'
+    title: '套件名称',
+    dataIndex: 'testsuite_name'
   },
   {
-    title: '项目描述',
-    dataIndex: 'project_desc'
+    title: '套件描述',
+    dataIndex: 'testsuite_desc'
+  },
+  {
+    title: '所属项目',
+    dataIndex: 'project_name'
   },
   {
     title: '创建人',
@@ -122,11 +129,11 @@ const columns = [
 ]
 
 export default {
-  name: 'ProjectManagement',
-  components: { StandardTable, CreateUpdateProject, RunProject },
+  name: 'TestSuitesManagement',
+  components: { StandardTable, CreateUpdateTestSuites, RunTestSuites },
   created() {
-    // 获取项目列表数据
-    getProjectsDataList().then((res) => {
+    // 获取套件列表数据
+    getTestSuitesDataList().then((res) => {
       this.dataSource = res.data.results
       this.pagination = {
         total: res.data.count,
@@ -140,7 +147,7 @@ export default {
   },
   data() {
     return {
-      projectCombinationQueryForm: this.$form.createForm(this, { name: 'project_combination_query_form' }),
+      testsuiteCombinationQueryForm: this.$form.createForm(this, { name: 'testsuite_combination_query_form' }),
       advanced: true,
       columns: columns,
       dataSource: [],
@@ -148,20 +155,24 @@ export default {
       pagination: {},
       filters: {},
       loading: false,
-      projectForm: {
+      testsuiteForm: {
         visible: false,
-        title: '新建项目',
-        projectId: null
+        title: '新建套件',
+        testsuiteId: null,
+        projectDataList: []
       },
-      runProjectForm: {
+      runTestSuiteForm: {
         visible: false,
-        projectId: null
+        testsuiteId: null
       }
     }
   },
   methods: {
+    updateProjectDataList(data) {
+      this.testsuiteForm.projectDataList = data
+    },
     combinationQuery() {
-      this.projectCombinationQueryForm.validateFields((err, values) => {
+      this.testsuiteCombinationQueryForm.validateFields((err, values) => {
         if (err) {
           return false
         }
@@ -172,10 +183,10 @@ export default {
           }
         }
         this.loading = true
-        // 重新获取项目列表数据(传入过滤参数)并更新数据
+        // 重新获取套件列表数据(传入过滤参数)并更新数据
         values.page = this.pagination.current
         values.size = this.pagination.pageSize
-        getProjectsDataList(values).then((res) => {
+        getTestSuitesDataList(values).then((res) => {
           this.filters = values
           this.dataSource = res.data.results
           this.pagination.total = res.data.count
@@ -187,11 +198,11 @@ export default {
     },
     combinationReset() {
       // 清空表单数据
-      this.projectCombinationQueryForm.resetFields()
+      this.testsuiteCombinationQueryForm.resetFields()
       // 刷新列表数据
       this.loading = true
-      // 重新获取项目列表数据(传入过滤参数)并更新数据
-      getProjectsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
+      // 重新获取套件列表数据(传入过滤参数)并更新数据
+      getTestSuitesDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
         this.dataSource = res.data.results
         this.filters = {}
         this.pagination.total = res.data.count
@@ -200,27 +211,31 @@ export default {
         this.loading = false
       })
     },
-    runProject(key) {
-      this.runProjectForm.visible = true
-      this.runProjectForm.projectId = key
+    runTestSuite(key) {
+      this.runTestSuiteForm.visible = true
+      this.runTestSuiteForm.testsuiteId = key
     },
-    // 创建新项目
-    createNewProject() {
-      this.projectForm.title = '新建项目'
-      this.projectForm.visible = true
+    // 创建新套件
+    createNewTestSuite() {
+      // 获取项目列表数据
+      getProjectsDataList().then((res) => {
+        this.testsuiteForm.projectDataList = res.data.results
+        this.testsuiteForm.title = '新建套件'
+        this.testsuiteForm.visible = true
+      })
     },
-    createOrEditProjectDone() {
+    createOrEditTestSuiteDone() {
       this.handleCancel()
-      this.refreshProjectsDataList()
+      this.refreshTestSuitesDataList()
     },
-    // 刷新项目列表数据
-    refreshProjectsDataList() {
+    // 刷新套件列表数据
+    refreshTestSuitesDataList() {
       this.loading = true
       let filters = this.filters
       filters.page = this.pagination.current
       filters.size = this.pagination.pageSize
-      // 重新获取项目列表数据并更新数据
-      getProjectsDataList(filters).then((res) => {
+      // 重新获取套件列表数据并更新数据
+      getTestSuitesDataList(filters).then((res) => {
         this.dataSource = res.data.results
         this.pagination.total = res.data.count
         this.pagination.current = res.data.current_page_num
@@ -228,42 +243,58 @@ export default {
         this.loading = false
       })
     },
-    // 编辑单个项目
-    editProject(key) {
-      getProjectDetail(key).then((res) => {
-        this.$refs.projectFormRef.form.setFieldsValue({
-          project_name: res.data.project_name,
-          project_desc: res.data.project_desc
+    // 编辑单个套件
+    editTestSuite(key) {
+      getTestSuiteDetail(key).then((res) => {
+        // 刷新项目列表数据
+        getProjectsDataList().then((res1) => {
+          this.testsuiteForm.projectDataList = res1.data.results
+          let alreadyExistsProjectIds = []
+          for (let item of res1.data.results) {
+            alreadyExistsProjectIds.push(item.id)
+          }
+          // 如果要编辑的套件的所属项目不在当前可选的列表数据的数组中，就请求接口获取数据并添加到列表数据的数组中
+          if (!alreadyExistsProjectIds.includes(res.data.project)) {
+            // console.log(res.data.project)
+            getProjectDetail(res.data.project).then((res2) => {
+              this.testsuiteForm.projectDataList.push(res2.data)
+            })
+          }
+          this.$refs.testsuiteFormRef.form.setFieldsValue({
+            testsuite_name: res.data.testsuite_name,
+            testsuite_desc: res.data.testsuite_desc,
+            project: res.data.project
+          })
+          this.testsuiteForm.title = '编辑套件'
+          this.testsuiteForm.testsuiteId = key
+          this.testsuiteForm.visible = true
         })
-        this.projectForm.title = '编辑项目'
-        this.projectForm.projectId = key
-        this.projectForm.visible = true
       })
     },
     handleCancel(title) {
-      if (title === '运行项目') {
-        this.runProjectForm.visible = false
-        this.$refs.runProjectFormRef.form.resetFields()
+      if (title === '运行套件') {
+        this.runTestSuiteForm.visible = false
+        this.$refs.runTestSuiteFormRef.form.resetFields()
       } else {
-        this.projectForm.visible = false
-        this.$refs.projectFormRef.form.resetFields()
+        this.testsuiteForm.visible = false
+        this.$refs.testsuiteFormRef.form.resetFields()
       }
     },
-    // 删除单个项目
-    deleteProject(key) {
+    // 删除单个套件
+    deleteTestSuite(key) {
       // confirm中使用self来访问当前组件中的this
       let self = this
-      // 删除项目确认对话框
+      // 删除套件确认对话框
       this.$confirm({
-        title: '确定要删除此项目吗?',
-        content: '删除此项目后,会连带删除此项目下的所有的 测试套件,配置项,全局函数,测试用例',
+        title: '确定要删除此套件吗?',
+        content: '删除此套件后,会连带删除此套件下的所有的 测试用例',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',
         onOk() {
-          deleteDetailProject(key).then(() => {
+          deleteDetailTestSuite(key).then(() => {
             self.$message.success('删除成功')
-            self.refreshProjectsDataList()
+            self.refreshTestSuitesDataList()
           })
         },
         onCancel() {
@@ -285,7 +316,7 @@ export default {
       filters = this.filters
       filters.page = pagination.current
       filters.size = pagination.pageSize
-      getProjectsDataList(filters).then((res) => {
+      getTestSuitesDataList(filters).then((res) => {
         this.dataSource = res.data.results
         this.pagination = pagination
         this.loading = false

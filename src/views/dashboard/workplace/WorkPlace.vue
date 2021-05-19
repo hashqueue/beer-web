@@ -97,7 +97,7 @@ import { mapState } from 'vuex'
 import PageLayout from '@/layouts/PageLayout'
 import HeadInfo from '@/components/tool/HeadInfo'
 import DetailList from '@/components/tool/DetailList'
-import { getUserProfile, logout, updateUserProfile, getGroupsList } from '@/services/user'
+import { getUserProfile, logout, updateUserProfile, getGroupsList } from '@/services/users'
 import { getUserId } from '@/utils/auth'
 import { mapMutations } from 'vuex'
 const DetailListItem = DetailList.Item

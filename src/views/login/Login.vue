@@ -93,7 +93,7 @@
 
 <script>
 import CommonLayout from '@/layouts/CommonLayout'
-import { getUserProfile, userLogin, userRegister } from '@/services/user'
+import { getUserProfile, userLogin, userRegister } from '@/services/users'
 import { setToken, setUserId } from '@/utils/auth'
 import { mapMutations } from 'vuex'
 export default {

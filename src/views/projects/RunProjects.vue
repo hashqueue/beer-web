@@ -18,11 +18,13 @@
         <a-select
           show-search
           placeholder="在此输入配置名称以进行搜索"
-          style="width: 250px"
           :filter-option="filterOption"
           v-decorator="['config_id', { rules: [{ required: true, message: '请选择一个配置项' }] }]"
+          @search="searchWithConfigName"
         >
-          <a-select-option v-for="item in configDataList" :key="item.id"> {{ item.config_name }} </a-select-option>
+          <a-select-option v-for="item in configDataList" :key="item.id">
+            配置名称（{{ item.config_name }}）|&nbsp;配置ID（{{ item.id }}）
+          </a-select-option>
         </a-select>
       </a-form-item>
     </a-form>
@@ -30,8 +32,8 @@
 </template>
 
 <script>
-import { getConfigsDataList } from '@/services/config'
-import { runDetailProject } from '@/services/project'
+import { getConfigsDataList } from '@/services/configs'
+import { runDetailProject } from '@/services/projects'
 export default {
   props: ['visible', 'projectId'],
   name: 'RunProject',
@@ -79,6 +81,28 @@ export default {
           this.$message.success(res.message)
           this.form.resetFields()
           this.$emit('cancel', '运行项目')
+        })
+      }
+    },
+    searchWithConfigName(configName) {
+      if (configName !== '') {
+        getConfigsDataList({ config_name: configName }).then((res) => {
+          if (res.data.count !== 0) {
+            let originConfigDataList = this.configDataList
+            originConfigDataList.push(...res.data.results)
+            let data = {}
+            let newConfigDataList = []
+            for (let item of originConfigDataList) {
+              if (!data[item.id]) {
+                newConfigDataList.push(item)
+                data[item.id] = true
+              }
+            }
+            // console.log(newConfigDataList)
+            // console.log(this.configDataList)
+            // console.log('----------------------------------')
+            this.configDataList = newConfigDataList
+          }
         })
       }
     },

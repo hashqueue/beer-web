@@ -29,7 +29,7 @@
           type="textarea"
           v-decorator="[
             'project_desc',
-            { rules: [{ min: 1, max: 256, message: '项目描述不能小于1个字符或超过150个字符', trigger: 'change' }] }
+            { rules: [{ min: 1, max: 256, message: '项目描述不能小于1个字符或超过256个字符', trigger: 'change' }] }
           ]"
         />
       </a-form-item>
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { createProject, updateProjectDetail } from '@/services/project'
+import { createProject, updateProjectDetail } from '@/services/projects'
 export default {
   name: 'CreateUpdateProject',
   props: ['visible', 'title', 'projectId'],
