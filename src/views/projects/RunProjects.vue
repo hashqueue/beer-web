@@ -5,6 +5,8 @@
     okText="确定"
     @cancel="
       () => {
+        this.checked = false
+        this.showSelect = false
         $emit('cancel', '运行项目')
       }
     "
@@ -12,7 +14,7 @@
   >
     <a-form :form="form">
       <a-form-item>
-        <a-checkbox @change="onChange">是否选择某个配置项来运行此项目</a-checkbox>
+        <a-checkbox :checked="checked" @change="onChange">是否选择某个配置项来运行此项目</a-checkbox>
       </a-form-item>
       <a-form-item v-show="showSelect" label="运行项目时所使用的配置">
         <a-select
@@ -41,18 +43,21 @@ export default {
     return {
       form: this.$form.createForm(this, { name: 'project_run_form' }),
       showSelect: false,
-      configDataList: null
+      configDataList: null,
+      checked: false
     }
   },
   methods: {
     // 多选框change事件
     onChange(e) {
       if (e.target.checked) {
-        getConfigsDataList().then((res) => {
+        this.checked = true
+        getConfigsDataList({ project: this.projectId }).then((res) => {
           this.configDataList = res.data.results
           this.showSelect = true
         })
       } else {
+        this.checked = false
         this.showSelect = false
       }
     },
@@ -71,6 +76,8 @@ export default {
           // 运行项目时使用配置
           runDetailProject(this.projectId, values).then((res) => {
             this.$message.success(res.message)
+            this.checked = false
+            this.showSelect = false
             this.form.resetFields()
             this.$emit('cancel', '运行项目')
           })
@@ -79,6 +86,8 @@ export default {
         // 运行项目时不使用配置
         runDetailProject(this.projectId).then((res) => {
           this.$message.success(res.message)
+          this.checked = false
+          this.showSelect = false
           this.form.resetFields()
           this.$emit('cancel', '运行项目')
         })
@@ -86,7 +95,7 @@ export default {
     },
     searchWithConfigName(configName) {
       if (configName !== '') {
-        getConfigsDataList({ config_name: configName }).then((res) => {
+        getConfigsDataList({ config_name: configName, project: this.projectId }).then((res) => {
           if (res.data.count !== 0) {
             let originConfigDataList = this.configDataList
             originConfigDataList.push(...res.data.results)

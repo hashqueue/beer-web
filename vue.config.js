@@ -7,6 +7,7 @@ const CompressionWebpackPlugin = require('compression-webpack-plugin')
 
 const productionGzipExtensions = ['js', 'css']
 const isProd = process.env.NODE_ENV === 'production'
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 const assetsCDN = {
   // webpack build externals
@@ -66,6 +67,8 @@ module.exports = {
     )
     // Ignore all locale files of moment.js
     config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/))
+    // monaco-editor的webpack配置
+    config.plugins.push(new MonacoWebpackPlugin({ languages: ['python'] }))
     // 生产环境下将资源压缩成gzip格式
     if (isProd) {
       // add `CompressionWebpack` plugin to webpack plugins

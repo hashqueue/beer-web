@@ -91,11 +91,13 @@ const columns = [
   },
   {
     title: '项目名称',
-    dataIndex: 'project_name'
+    dataIndex: 'project_name',
+    ellipsis: true
   },
   {
     title: '项目描述',
-    dataIndex: 'project_desc'
+    dataIndex: 'project_desc',
+    ellipsis: true
   },
   {
     title: '创建人',
@@ -107,13 +109,11 @@ const columns = [
   },
   {
     title: '创建时间',
-    dataIndex: 'create_time',
-    sorter: true
+    dataIndex: 'create_time'
   },
   {
     title: '更新时间',
-    dataIndex: 'update_time',
-    sorter: true
+    dataIndex: 'update_time'
   },
   {
     title: '操作',

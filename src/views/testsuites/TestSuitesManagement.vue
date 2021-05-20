@@ -50,6 +50,7 @@
         ref="runTestSuiteFormRef"
         :visible="runTestSuiteForm.visible"
         :testsuiteId="runTestSuiteForm.testsuiteId"
+        :projectId="runTestSuiteForm.projectId"
         @cancel="handleCancel"
       />
       <standard-table
@@ -70,7 +71,7 @@
         <div slot="action" slot-scope="{ text, record }">
           <a style="margin-right: 8px" @click="editTestSuite(record.id)"> <a-icon type="edit" />编辑 </a>
           <a style="margin-right: 8px" @click="deleteTestSuite(record.id)"> <a-icon type="delete" />删除</a>
-          <a @click="runTestSuite(record.id)"> <a-icon type="play-circle" />运行</a>
+          <a @click="runTestSuite(record)"> <a-icon type="play-circle" />运行</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -94,15 +95,22 @@ const columns = [
   },
   {
     title: '套件名称',
-    dataIndex: 'testsuite_name'
+    dataIndex: 'testsuite_name',
+    ellipsis: true
   },
   {
     title: '套件描述',
-    dataIndex: 'testsuite_desc'
+    dataIndex: 'testsuite_desc',
+    ellipsis: true
   },
   {
     title: '所属项目',
-    dataIndex: 'project_name'
+    dataIndex: 'project_name',
+    ellipsis: true
+  },
+  {
+    title: '所属项目ID',
+    dataIndex: 'project'
   },
   {
     title: '创建人',
@@ -114,13 +122,11 @@ const columns = [
   },
   {
     title: '创建时间',
-    dataIndex: 'create_time',
-    sorter: true
+    dataIndex: 'create_time'
   },
   {
     title: '更新时间',
-    dataIndex: 'update_time',
-    sorter: true
+    dataIndex: 'update_time'
   },
   {
     title: '操作',
@@ -163,7 +169,8 @@ export default {
       },
       runTestSuiteForm: {
         visible: false,
-        testsuiteId: null
+        testsuiteId: null,
+        projectId: null
       }
     }
   },
@@ -213,7 +220,8 @@ export default {
     },
     runTestSuite(key) {
       this.runTestSuiteForm.visible = true
-      this.runTestSuiteForm.testsuiteId = key
+      this.runTestSuiteForm.testsuiteId = key.id
+      this.runTestSuiteForm.projectId = key.project
     },
     // 创建新套件
     createNewTestSuite() {
