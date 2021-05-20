@@ -12,6 +12,40 @@ export function getConfigsDataList(params) {
   })
 }
 
+export function createConfig(data) {
+  return request({
+    url: '/configs/',
+    method: 'post',
+    data
+  })
+}
+
+export function getConfigDetail(configId) {
+  return request({
+    url: `/configs/${configId}/`,
+    method: 'get'
+  })
+}
+
+export function updateConfigDetail(configId, data) {
+  return request({
+    url: `/configs/${configId}/`,
+    method: 'put',
+    data
+  })
+}
+
+export function deleteDetailConfig(configId) {
+  return request({
+    url: `/configs/${configId}/`,
+    method: 'delete'
+  })
+}
+
 export default {
-  getConfigsDataList
+  getConfigsDataList,
+  createConfig,
+  getConfigDetail,
+  updateConfigDetail,
+  deleteDetailConfig
 }

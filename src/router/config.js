@@ -63,6 +63,14 @@ const options = {
             icon: 'appstore'
           },
           component: () => import('@/views/testsuites')
+        },
+        {
+          path: 'configs',
+          name: '配置管理',
+          meta: {
+            icon: 'setting'
+          },
+          component: () => import('@/views/configs')
         }
       ]
     }
