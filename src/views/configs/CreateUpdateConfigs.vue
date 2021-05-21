@@ -7,7 +7,6 @@
     okText="保存"
     @cancel="
       () => {
-        this.dynamicGlobalVariables = [undefined]
         $emit('cancel', title)
       }
     "
@@ -40,21 +39,41 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="全局变量">
+      <a-form-item label="全局变量" :required="true">
         <a-row :gutter="24" v-for="(item, index) in dynamicGlobalVariables" :key="index" type="flex">
-          <a-col :span="10">
+          <a-col :span="11">
             <a-form-item>
               <a-input
                 placeholder="全局变量名"
-                v-decorator="[`key${index}`, { rules: [{ required: true, message: '请填写变量名' }] }]"
+                v-decorator="[
+                  `dynamicGlobalVariables[${index}].key`,
+                  { rules: [{ required: true, message: '请填写变量名' }], preserve: true }
+                ]"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="10">
+          <a-col :span="11">
             <a-form-item>
               <a-input
                 placeholder="全局变量值"
-                v-decorator="[`value${index}`, { rules: [{ required: true, message: '请填写变量值' }] }]"
+                v-decorator="[
+                  `dynamicGlobalVariables[${index}].value`,
+                  {
+                    rules: [{ required: true, message: '请填写变量值' }],
+                    preserve: true
+                  }
+                ]"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="2">
+            <a-form-item>
+              <a-icon
+                v-if="dynamicGlobalVariables.length > 1"
+                class="dynamic-delete-button"
+                type="minus-circle-o"
+                :disabled="dynamicGlobalVariables.length === 1"
+                @click="() => removeVariable(index)"
               />
             </a-form-item>
           </a-col>
@@ -88,7 +107,7 @@ export default {
   data() {
     return {
       form: this.$form.createForm(this, { name: 'config_form' }),
-      dynamicGlobalVariables: [undefined],
+      dynamicGlobalVariables: [],
       formItemLayoutWithOutLabel: {
         wrapperCol: {
           xs: { span: 24, offset: 0 },
@@ -99,8 +118,11 @@ export default {
   },
   methods: {
     addVariable() {
-      this.dynamicGlobalVariables.push(undefined)
+      this.dynamicGlobalVariables.push({ key: '', value: '' })
       console.log(this.dynamicGlobalVariables)
+    },
+    removeVariable(index) {
+      this.dynamicGlobalVariables.splice(index, 1)
     },
     handleOk() {
       if (this.title === '新建配置') {
@@ -172,4 +194,20 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.dynamic-delete-button {
+  cursor: pointer;
+  position: relative;
+  top: 4px;
+  font-size: 24px;
+  color: #999;
+  transition: all 0.3s;
+}
+.dynamic-delete-button:hover {
+  color: #777;
+}
+.dynamic-delete-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+</style>
