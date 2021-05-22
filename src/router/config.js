@@ -1,5 +1,6 @@
 import TabsView from '@/layouts/tabs/TabsView'
 import BlankView from '@/layouts/BlankView'
+import PageView from '@/layouts/PageView'
 
 // 路由配置
 const options = {
@@ -70,7 +71,22 @@ const options = {
           meta: {
             icon: 'setting'
           },
-          component: () => import('@/views/configs')
+          component: PageView,
+          children: [
+            {
+              path: 'list',
+              name: '配置列表',
+              component: () => import('@/views/configs/ConfigsManagement')
+            },
+            {
+              path: 'add',
+              name: '新增配置',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/configs/CreateUpdateConfigs')
+            }
+          ]
         }
       ]
     }

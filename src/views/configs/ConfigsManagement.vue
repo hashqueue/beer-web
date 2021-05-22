@@ -36,16 +36,6 @@
       <a-space class="operator">
         <a-button @click="createNewConfig" type="primary">新建配置</a-button>
       </a-space>
-      <create-update-configs
-        ref="configFormRef"
-        :visible="configForm.visible"
-        :title="configForm.title"
-        :configId="configForm.configId"
-        :projectDataList="configForm.projectDataList"
-        @cancel="handleCancel"
-        @createOrEditConfigDone="createOrEditConfigDone"
-        @updateProjectDataList="updateProjectDataList"
-      />
       <standard-table
         :bordered="true"
         :columns="columns"
@@ -76,7 +66,6 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import CreateUpdateConfigs from '@/views/configs/CreateUpdateConfigs'
 import { getConfigsDataList, getConfigDetail, deleteDetailConfig } from '@/services/configs'
 import { getProjectsDataList, getProjectDetail } from '@/services/projects'
 
@@ -128,7 +117,7 @@ const columns = [
 
 export default {
   name: 'ConfigsManagement',
-  components: { StandardTable, CreateUpdateConfigs },
+  components: { StandardTable },
   created() {
     // 获取配置列表数据
     getConfigsDataList().then((res) => {
@@ -207,6 +196,7 @@ export default {
     },
     // 创建新配置
     createNewConfig() {
+      this.$router.push('/configs/add')
       // 获取项目列表数据
       getProjectsDataList().then((res) => {
         this.configForm.projectDataList = res.data.results
