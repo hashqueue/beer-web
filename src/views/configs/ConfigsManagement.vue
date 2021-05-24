@@ -197,12 +197,6 @@ export default {
     // 创建新配置
     createNewConfig() {
       this.$router.push('/configs/add')
-      // 获取项目列表数据
-      getProjectsDataList().then((res) => {
-        this.configForm.projectDataList = res.data.results
-        this.configForm.title = '新建配置'
-        this.configForm.visible = true
-      })
     },
     createOrEditConfigDone() {
       this.handleCancel()
