@@ -79,12 +79,20 @@ const options = {
               component: () => import('@/views/configs/ConfigsManagement')
             },
             {
-              path: 'add',
+              path: 'create',
               name: '新增配置',
               meta: {
                 invisible: true
               },
-              component: () => import('@/views/configs/CreateUpdateConfigs')
+              component: () => import('@/views/configs/CreateConfigs')
+            },
+            {
+              path: 'update',
+              name: '更新配置',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/configs/UpdateConfigs')
             }
           ]
         }

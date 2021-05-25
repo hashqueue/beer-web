@@ -66,8 +66,8 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import { getConfigsDataList, getConfigDetail, deleteDetailConfig } from '@/services/configs'
-import { getProjectsDataList, getProjectDetail } from '@/services/projects'
+import { getConfigsDataList, deleteDetailConfig } from '@/services/configs'
+import EventBus from '@/utils/event-bus'
 
 const columns = [
   {
@@ -131,6 +131,12 @@ export default {
         showTotal: () => `共 ${res.data.count} 条`
       }
     })
+    // 新建配置&更新配置 后刷新配置列表数据
+    EventBus.$on('refreshConfigsDataList', this.refreshConfigsDataList)
+  },
+  // 组件销毁时，注销自定义事件
+  destroyed() {
+    EventBus.$off('refreshConfigsDataList')
   },
   data() {
     return {
@@ -141,19 +147,10 @@ export default {
       selectedRows: [],
       pagination: {},
       filters: {},
-      loading: false,
-      configForm: {
-        visible: false,
-        title: '新建配置',
-        configId: null,
-        projectDataList: []
-      }
+      loading: false
     }
   },
   methods: {
-    updateProjectDataList(data) {
-      this.configForm.projectDataList = data
-    },
     combinationQuery() {
       this.configCombinationQueryForm.validateFields((err, values) => {
         if (err) {
@@ -196,11 +193,7 @@ export default {
     },
     // 创建新配置
     createNewConfig() {
-      this.$router.push('/configs/add')
-    },
-    createOrEditConfigDone() {
-      this.handleCancel()
-      this.refreshConfigsDataList()
+      this.$router.push('/configs/create')
     },
     // 刷新配置列表数据
     refreshConfigsDataList() {
@@ -219,35 +212,9 @@ export default {
     },
     // 编辑单个配置
     editConfig(key) {
-      getConfigDetail(key).then((res) => {
-        // 刷新项目列表数据
-        getProjectsDataList().then((res1) => {
-          this.configForm.projectDataList = res1.data.results
-          let alreadyExistsProjectIds = []
-          for (let item of res1.data.results) {
-            alreadyExistsProjectIds.push(item.id)
-          }
-          // 如果要编辑的配置的所属项目不在当前可选的列表数据的数组中，就请求接口获取数据并添加到列表数据的数组中
-          if (!alreadyExistsProjectIds.includes(res.data.project)) {
-            // console.log(res.data.project)
-            getProjectDetail(res.data.project).then((res2) => {
-              this.configForm.projectDataList.push(res2.data)
-            })
-          }
-          this.$refs.configFormRef.form.setFieldsValue({
-            config_name: res.data.config_name,
-            config_desc: res.data.config_desc,
-            project: res.data.project
-          })
-          this.configForm.title = '编辑配置'
-          this.configForm.configId = key
-          this.configForm.visible = true
-        })
-      })
-    },
-    handleCancel() {
-      this.configForm.visible = false
-      this.$refs.configFormRef.form.resetFields()
+      EventBus.$emit('getConfigDetailData', key)
+      this.$router.push('/configs/update')
+      console.log(`key: ${key}`)
     },
     // 删除单个配置
     deleteConfig(key) {

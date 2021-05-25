@@ -1,6 +1,12 @@
 <template>
   <a-card>
-    <a-form-model ref="configFormRuleFormRef" :model="configForm" :rules="configFormRules">
+    <a-form-model
+      ref="configFormRuleFormRef"
+      :model="configForm"
+      :rules="configFormRules"
+      :label-col="labelCol"
+      :wrapper-col="wrapperCol"
+    >
       <a-form-model-item label="配置名称" prop="config_name">
         <a-input v-model="configForm.config_name" />
       </a-form-model-item>
@@ -17,13 +23,23 @@
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="全局变量" prop="global_variable">
+      <a-form-model-item label="全局变量">
         <a-row :gutter="24" v-for="(item, index) in configForm.global_variable" :key="index" type="flex">
           <a-col :span="11">
-            <a-input v-model="item.key" placeholder="全局变量名" />
+            <a-form-model-item
+              :rules="{ required: true, message: '变量名为必填项', trigger: 'blur' }"
+              :prop="'global_variable.' + index + '.key'"
+            >
+              <a-input type="textarea" v-model="item.key" placeholder="全局变量名" />
+            </a-form-model-item>
           </a-col>
           <a-col :span="11">
-            <a-input v-model="item.value" placeholder="全局变量值" />
+            <a-form-model-item
+              :rules="{ required: true, message: '变量值为必填项', trigger: 'blur' }"
+              :prop="'global_variable.' + index + '.value'"
+            >
+              <a-input type="textarea" v-model="item.value" placeholder="全局变量值" />
+            </a-form-model-item>
           </a-col>
           <a-col :span="2">
             <a-icon
@@ -31,7 +47,7 @@
               class="dynamic-delete-button"
               type="minus-circle-o"
               :disabled="configForm.global_variable.length === 1"
-              @click="removeVariable(item)"
+              @click="removeVariable(index)"
             />
           </a-col>
         </a-row>
@@ -44,7 +60,7 @@
       <a-form-model-item label="配置描述" prop="config_desc">
         <a-input type="textarea" v-model="configForm.config_desc" />
       </a-form-model-item>
-      <a-form-model-item :labelCol="{ span: 10, offset: 2 }">
+      <a-form-model-item :wrapperCol="{ offset: 2 }">
         <a-button type="primary" html-type="submit" @click="submitForm('configFormRuleFormRef')">保存</a-button>
         <a-button style="margin-left: 10px" @click="closeForm('configFormRuleFormRef')">取消</a-button>
       </a-form-model-item>
@@ -53,34 +69,33 @@
 </template>
 
 <script>
-import { updateConfigDetail, createConfig } from '@/services/configs'
-import { getProjectsDataList } from '@/services/projects'
+import { updateConfigDetail, getConfigDetail } from '@/services/configs'
+import { getProjectDetail, getProjectsDataList } from '@/services/projects'
+import EventBus from '@/utils/event-bus'
 
 export default {
-  name: 'CreateUpdateConfigs',
-  props: ['visible', 'title', 'configId'],
+  name: 'UpdateConfigs',
   created() {
-    // 获取项目列表数据
-    getProjectsDataList().then((res) => {
-      this.projectDataList = res.data.results
+    // TODO
+    EventBus.$on('getConfigDetailData', (configId) => {
+      this.configId = configId
+      this.getConfigDetailData(configId)
+      console.log(`configId：${configId}`)
+      console.log(this.configForm)
     })
   },
+  destroyed() {
+    EventBus.$off('getConfigDetailData')
+  },
   data() {
-    let validateGlobalVariables = (rule, value, callback) => {
-      for (let item of value) {
-        if (item.key === '' || item.value === '') {
-          callback(new Error('全局变量为必填项'))
-        } else {
-          callback()
-        }
-      }
-    }
     return {
-      projectDataList: null,
+      labelCol: { span: 2 },
+      wrapperCol: { span: 20 },
+      projectDataList: undefined,
+      configId: undefined,
       formItemLayoutWithOutLabel: {
         wrapperCol: {
-          xs: { span: 24, offset: 0 },
-          sm: { span: 24, offset: 6 }
+          sm: { span: 6, offset: 2 }
         }
       },
       configForm: {
@@ -95,15 +110,40 @@ export default {
           { min: 1, max: 150, message: '配置名称不能小于1个字符或超过150个字符', trigger: 'change' }
         ],
         project: [{ required: true, message: '所属项目为必填项', trigger: 'blur' }],
-        global_variable: [
-          { required: true, message: '全局变量为必填项', trigger: 'blur' },
-          { validator: validateGlobalVariables, trigger: 'change' }
-        ],
         config_desc: [{ min: 1, max: 256, message: '配置描述不能小于1个字符或超过256个字符', trigger: 'change' }]
       }
     }
   },
   methods: {
+    getConfigDetailData(configId) {
+      getConfigDetail(configId).then((res) => {
+        // 获取项目列表数据
+        getProjectsDataList().then((res1) => {
+          this.projectDataList = res1.data.results
+          let alreadyExistsProjectIds = []
+          for (let item of res1.data.results) {
+            alreadyExistsProjectIds.push(item.id)
+          }
+          // 如果要编辑的配置的所属项目不在当前可选的列表数据的数组中，就请求接口获取数据并添加到列表数据的数组中
+          if (!alreadyExistsProjectIds.includes(res.data.project)) {
+            // console.log(res.data.project)
+            getProjectDetail(res.data.project).then((res2) => {
+              this.projectDataList.push(res2.data)
+            })
+          }
+          let newGlobalVariable = []
+          for (let objKey of Object.keys(res.data.global_variable)) {
+            newGlobalVariable.push({ key: objKey, value: res.data.global_variable[objKey] })
+          }
+          this.configForm = {
+            config_name: res.data.config_name,
+            config_desc: res.data.config_desc,
+            project: res.data.project,
+            global_variable: newGlobalVariable
+          }
+        })
+      })
+    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -112,12 +152,25 @@ export default {
             newGlobalVariable[item['key']] = item['value']
           }
           this.configForm.global_variable = newGlobalVariable
+          // 删除无效数据
+          for (let key of Object.keys(this.configForm)) {
+            if (this.configForm[key] === undefined || this.configForm[key] === '') {
+              delete this.configForm[key]
+            }
+          }
           // console.log(this.configForm)
-          createConfig(this.configForm).then((res) => {
+          updateConfigDetail(this.configId, this.configForm).then((res) => {
             this.$message.success(res.message)
-            this.$refs[formName].resetFields()
+            // resetFields有BUG,这里手动重置表单
+            this.configForm = {
+              config_name: '',
+              config_desc: '',
+              project: '',
+              global_variable: [{ key: '', value: '' }]
+            }
+            // 通知配置列表组件刷新配置列表数据
+            EventBus.$emit('refreshConfigsDataList')
             this.$router.push('/configs/list')
-            // TODO：通知配置列表刷新页面
           })
         } else {
           console.log('error submit!!')
@@ -125,60 +178,21 @@ export default {
         }
       })
     },
-    closeForm(formName) {
-      this.$refs[formName].resetFields()
+    closeForm() {
+      // resetFields有BUG,这里手动重置表单
+      this.configForm = {
+        config_name: '',
+        config_desc: '',
+        project: '',
+        global_variable: [{ key: '', value: '' }]
+      }
       this.$router.push('/configs/list')
     },
     addVariable() {
       this.configForm.global_variable.push({ key: '', value: '' })
     },
-    removeVariable(itemValue) {
-      let index = this.configForm.global_variable.indexOf(itemValue)
-      if (index !== -1) {
-        this.configForm.global_variable.splice(index, 1)
-      }
-    },
-    handleOk(formName) {
-      if (this.title === '新建配置') {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            // 删除无效数据
-            for (let key of Object.keys(this.configForm)) {
-              if (this.configForm[key] === undefined || this.configForm[key] === '') {
-                delete this.configForm[key]
-              }
-            }
-            // 创建配置
-            // createConfig(values).then(() => {
-            //   this.$message.success('新建配置成功')
-            //   this.form.resetFields()
-            //   this.$emit('createOrEditConfigDone')
-            // })
-            console.log(this.configForm)
-          } else {
-            console.log('error submit!!')
-            return false
-          }
-        })
-      } else if (this.title === '编辑配置') {
-        this.form.validateFields((err, values) => {
-          if (err) {
-            return false
-          }
-          // 删除无效数据
-          for (let key of Object.keys(values)) {
-            if (values[key] === undefined || values[key] === '') {
-              delete values[key]
-            }
-          }
-          // 更新配置信息
-          updateConfigDetail(this.configId, values).then(() => {
-            this.$message.success('更新成功')
-            this.form.resetFields()
-            this.$emit('createOrEditConfigDone')
-          })
-        })
-      }
+    removeVariable(index) {
+      this.configForm.global_variable.splice(index, 1)
     },
     searchWithProjectName(projectName) {
       if (projectName !== '') {
