@@ -85,7 +85,7 @@ export default {
     return {
       labelCol: { span: 2 },
       wrapperCol: { span: 20 },
-      projectDataList: null,
+      projectDataList: undefined,
       formItemLayoutWithOutLabel: {
         wrapperCol: {
           sm: { span: 6, offset: 2 }

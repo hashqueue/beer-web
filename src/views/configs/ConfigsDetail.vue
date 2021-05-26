@@ -48,7 +48,7 @@ export default {
   components: { DetailListItem, DetailList },
   created() {
     this.detailConfigId = this.$route.params.detailConfigId
-    // 获取项目详情信息
+    // 获取配置详情信息
     getConfigDetail(this.detailConfigId).then((res) => {
       this.configForm = res.data
       let newGlobalVariable = []
@@ -61,7 +61,8 @@ export default {
   data() {
     return {
       configsColumns,
-      configForm: undefined
+      configForm: undefined,
+      detailConfigId: undefined
     }
   },
   methods: {}

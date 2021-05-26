@@ -103,6 +103,45 @@ const options = {
               component: () => import('@/views/configs/ConfigsDetail')
             }
           ]
+        },
+        {
+          path: 'functions',
+          name: '全局函数管理',
+          meta: {
+            icon: 'code'
+          },
+          component: PageView,
+          children: [
+            {
+              path: 'list',
+              name: '全局函数列表',
+              component: () => import('@/views/global-functions/FunctionsManagement')
+            },
+            {
+              path: 'create',
+              name: '新增全局函数',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/global-functions/CreateFunctions')
+            },
+            {
+              path: 'update/:updateFunctionId',
+              name: '更新全局函数',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/global-functions/UpdateFunctions')
+            },
+            {
+              path: 'detail/:detailFunctionId',
+              name: '全局函数详情',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/global-functions/FunctionsDetail')
+            }
+          ]
         }
       ]
     }
