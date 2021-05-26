@@ -54,7 +54,7 @@
         <div slot="action" slot-scope="{ text, record }">
           <a style="margin-right: 8px" @click="editConfig(record.id)"> <a-icon type="edit" />编辑 </a>
           <a style="margin-right: 8px" @click="deleteConfig(record.id)"> <a-icon type="delete" />删除</a>
-          <a> <a-icon type="info-circle" />详情</a>
+          <a @click="getConfigDetail(record.id)"> <a-icon type="info-circle" />详情</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -212,9 +212,11 @@ export default {
     },
     // 编辑单个配置
     editConfig(key) {
-      EventBus.$emit('getConfigDetailData', key)
-      this.$router.push('/configs/update')
-      console.log(`key: ${key}`)
+      // 通过命名路由传递需要更新配置的配置ID
+      this.$router.push({ name: '更新配置', params: { updateConfigId: key } })
+    },
+    getConfigDetail(detailConfigId) {
+      this.$router.push({ name: '配置详情', params: { detailConfigId: detailConfigId } })
     },
     // 删除单个配置
     deleteConfig(key) {
@@ -223,7 +225,7 @@ export default {
       // 删除配置确认对话框
       this.$confirm({
         title: '确定要删除此配置吗?',
-        content: '删除此配置后,此配置信息将不再显示',
+        content: '删除此配置后,此配置信息将被彻底删除!',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',

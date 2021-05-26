@@ -76,23 +76,14 @@ import EventBus from '@/utils/event-bus'
 export default {
   name: 'UpdateConfigs',
   created() {
-    // TODO
-    EventBus.$on('getConfigDetailData', (configId) => {
-      this.configId = configId
-      this.getConfigDetailData(configId)
-      console.log(`configId：${configId}`)
-      console.log(this.configForm)
-    })
-  },
-  destroyed() {
-    EventBus.$off('getConfigDetailData')
+    this.updateConfigId = this.$route.params.updateConfigId
+    this.getConfigDetailData(this.updateConfigId)
   },
   data() {
     return {
       labelCol: { span: 2 },
       wrapperCol: { span: 20 },
       projectDataList: undefined,
-      configId: undefined,
       formItemLayoutWithOutLabel: {
         wrapperCol: {
           sm: { span: 6, offset: 2 }
@@ -115,6 +106,7 @@ export default {
     }
   },
   methods: {
+    // 获取项目详情信息
     getConfigDetailData(configId) {
       getConfigDetail(configId).then((res) => {
         // 获取项目列表数据
@@ -159,7 +151,7 @@ export default {
             }
           }
           // console.log(this.configForm)
-          updateConfigDetail(this.configId, this.configForm).then((res) => {
+          updateConfigDetail(this.updateConfigId, this.configForm).then((res) => {
             this.$message.success(res.message)
             // resetFields有BUG,这里手动重置表单
             this.configForm = {
@@ -168,6 +160,8 @@ export default {
               project: '',
               global_variable: [{ key: '', value: '' }]
             }
+            // 关闭当前标签页
+            EventBus.$emit('closeCurrentPage')
             // 通知配置列表组件刷新配置列表数据
             EventBus.$emit('refreshConfigsDataList')
             this.$router.push('/configs/list')
@@ -179,6 +173,8 @@ export default {
       })
     },
     closeForm() {
+      // 关闭当前标签页
+      EventBus.$emit('closeCurrentPage')
       // resetFields有BUG,这里手动重置表单
       this.configForm = {
         config_name: '',

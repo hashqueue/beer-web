@@ -33,6 +33,7 @@
 <script>
 import { mapState, mapMutations } from 'vuex'
 import { getI18nKey } from '@/utils/routerUtil'
+import EventBus from '@/utils/event-bus'
 
 export default {
   name: 'TabsHead',
@@ -65,6 +66,12 @@ export default {
   inject: ['adminLayout'],
   created() {
     this.affixed = this.fixedTabs
+    // 关闭当前标签页
+    EventBus.$on('closeCurrentPage', this.onClose)
+  },
+  destroyed() {
+    // 销毁事件
+    EventBus.$off('closeCurrentPage')
   },
   computed: {
     ...mapState('setting', ['layout', 'pageWidth', 'fixedHeader', 'fixedTabs', 'customTitles']),

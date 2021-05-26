@@ -125,6 +125,8 @@ export default {
           // console.log(this.configForm)
           createConfig(this.configForm).then((res) => {
             this.$message.success(res.message)
+            // 关闭当前标签页
+            EventBus.$emit('closeCurrentPage')
             // resetFields有BUG,这里手动重置表单
             this.configForm = {
               config_name: '',
@@ -143,6 +145,8 @@ export default {
       })
     },
     closeForm() {
+      // 关闭当前标签页
+      EventBus.$emit('closeCurrentPage')
       // resetFields有BUG,这里手动重置表单
       this.configForm = {
         config_name: '',
