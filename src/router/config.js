@@ -142,6 +142,29 @@ const options = {
               component: () => import('@/views/global-functions/FunctionsDetail')
             }
           ]
+        },
+        {
+          path: 'tasks',
+          name: '任务管理',
+          meta: {
+            icon: 'pie-chart'
+          },
+          component: PageView,
+          children: [
+            {
+              path: 'list',
+              name: '任务列表',
+              component: () => import('@/views/tasks/TasksManagement')
+            },
+            {
+              path: 'detail/:detailTaskId',
+              name: '任务详情',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/tasks/TasksDetail')
+            }
+          ]
         }
       ]
     }
