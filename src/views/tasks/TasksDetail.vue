@@ -27,7 +27,7 @@
       </a-col>
       <a-col :span="12">
         <detail-list :title="isPassedText" v-if="testSuiteResultData !== undefined">
-          <detail-list-item term="用例总数">{{ testSuiteResultData.count }}</detail-list-item>
+          <detail-list-item term="用例总数">{{ testSuiteResultData.total }}</detail-list-item>
           <detail-list-item term="运行成功个数">{{ testSuiteResultData.successCount }}</detail-list-item>
           <detail-list-item term="运行成功的用例ID">{{ testSuiteResultData.successTestcaseIds }}</detail-list-item>
           <detail-list-item term="运行失败个数">{{ testSuiteResultData.failureCount }}</detail-list-item>
@@ -36,7 +36,7 @@
           <detail-list-item term="运行异常的用例ID">{{ testSuiteResultData.exceptionTestcaseIds }}</detail-list-item>
         </detail-list>
         <detail-list :title="isPassedText" v-if="projectResultData !== undefined">
-          <detail-list-item term="用例总数">{{ projectResultData.count }}</detail-list-item>
+          <detail-list-item term="用例总数">{{ projectResultData.total }}</detail-list-item>
           <detail-list-item term="运行成功个数">{{ projectResultData.successCount }}</detail-list-item>
           <detail-list-item term="运行成功的用例ID">{{ projectResultData.successTestcaseIds }}</detail-list-item>
           <detail-list-item term="运行失败个数">{{ projectResultData.failureCount }}</detail-list-item>
@@ -106,7 +106,7 @@ export default {
       if ('summary_data' in res.data.result) {
         if ('count' in res.data.result.summary_data) {
           this.testSuiteResultData = {
-            count: res.data.result.summary_data.count,
+            total: res.data.result.summary_data.count,
             successCount: res.data.result.summary_data.success.count,
             successTestcaseIds: res.data.result.summary_data.success.testcase_ids,
             failureCount: res.data.result.summary_data.failure.count,
@@ -116,7 +116,7 @@ export default {
           }
         } else {
           this.projectResultData = {
-            count: res.data.result.summary_data.testcase_info.testcase_count,
+            total: res.data.result.summary_data.testcase_info.testcase_count,
             successCount: res.data.result.summary_data.testcase_info.success.count,
             successTestcaseIds: res.data.result.summary_data.testcase_info.success.testcase_ids,
             failureCount: res.data.result.summary_data.testcase_info.failure.count,
@@ -134,10 +134,10 @@ export default {
       if (typeof this.taskForm.result === 'object') {
         // js对象判断包含属性
         if ('summary_data' in this.taskForm.result) {
-          // 运行结果为正常
-          this.isShowError = { display: 'none' } // 控制异常结果不展示
           // 渲染图表
           this.createPieChart()
+          // 运行结果为正常
+          this.isShowError = { display: 'none' } // 控制异常结果不展示
           if (this.taskForm.result.summary_data.status === true) {
             this.isPassedText = '测试通过'
           } else {
@@ -164,19 +164,19 @@ export default {
       if (this.taskForm.task_name === 'project.tasks.run_project') {
         // 如果运行的是项目
         data = [
-          { type: '成功', value: this.taskForm.result.summary_data.testcase_info.success.count },
-          { type: '异常', value: this.taskForm.result.summary_data.testcase_info.exception.count },
-          { type: '失败', value: this.taskForm.result.summary_data.testcase_info.failure.count }
+          { type: '成功', value: this.projectResultData.successCount },
+          { type: '异常', value: this.projectResultData.exceptionCount },
+          { type: '失败', value: this.projectResultData.failureCount }
         ]
-        total = this.taskForm.result.summary_data.testcase_info.testcase_count
+        total = this.projectResultData.total
       } else {
         // 如果运行的是套件
         data = [
-          { type: '成功', value: this.taskForm.result.summary_data.success.count },
-          { type: '异常', value: this.taskForm.result.summary_data.exception.count },
-          { type: '失败', value: this.taskForm.result.summary_data.failure.count }
+          { type: '成功', value: this.testSuiteResultData.successCount },
+          { type: '异常', value: this.testSuiteResultData.exceptionCount },
+          { type: '失败', value: this.testSuiteResultData.failureCount }
         ]
-        total = this.taskForm.result.summary_data.count
+        total = this.testSuiteResultData.total
       }
       const piePlot = new Pie('container', {
         width: 500,
@@ -189,11 +189,11 @@ export default {
         radius: 1,
         color: ({ type }) => {
           if (type === '成功') {
-            return '#62DAAB'
-          } else if (type === '异常') {
-            return '#F6C022'
+            return '#52C41A'
+          } else if (type === '失败') {
+            return '#FAAD14'
           } else {
-            return 'red'
+            return '#FF0000'
           }
         },
         innerRadius: 0.6,
