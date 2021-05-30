@@ -143,7 +143,7 @@ export default {
       // 删除任务确认对话框
       this.$confirm({
         title: '确定要删除此任务运行记录吗?',
-        content: '删除此任务运行记录后,此任务运行记录信息将被彻底删除!',
+        content: '删除此任务运行记录后，此任务运行记录信息将被彻底删除!',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',

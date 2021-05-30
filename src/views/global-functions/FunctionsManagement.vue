@@ -225,7 +225,7 @@ export default {
       // 删除函数确认对话框
       this.$confirm({
         title: '确定要删除此函数吗?',
-        content: '删除此函数后,此函数信息将被彻底删除!',
+        content: '删除此函数后，此函数信息将被彻底删除!',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',

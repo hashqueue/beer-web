@@ -144,6 +144,45 @@ const options = {
           ]
         },
         {
+          path: 'testcases',
+          name: '用例管理',
+          meta: {
+            icon: 'api'
+          },
+          component: PageView,
+          children: [
+            {
+              path: 'list',
+              name: '用例列表',
+              component: () => import('@/views/testcases/TestcasesManagement')
+            },
+            {
+              path: 'create',
+              name: '新增用例',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/testcases/CreateTestcases')
+            },
+            {
+              path: 'update/:updateTestcaseId',
+              name: '更新用例',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/testcases/UpdateTestcases')
+            },
+            {
+              path: 'detail/:detailTestcaseId',
+              name: '用例详情',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/testcases/TestcasesDetail')
+            }
+          ]
+        },
+        {
           path: 'tasks',
           name: '任务管理',
           meta: {

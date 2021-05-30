@@ -256,7 +256,7 @@ export default {
       // 删除项目确认对话框
       this.$confirm({
         title: '确定要删除此项目吗?',
-        content: '删除此项目后,会连带删除此项目下的所有的 测试套件,配置项,全局函数,测试用例',
+        content: '删除此项目后，会连带删除此项目下的所有的 测试套件，配置项，全局函数，测试用例',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',

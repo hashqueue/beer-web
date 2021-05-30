@@ -295,7 +295,7 @@ export default {
       // 删除套件确认对话框
       this.$confirm({
         title: '确定要删除此套件吗?',
-        content: '删除此套件后,会连带删除此套件下的所有的 测试用例',
+        content: '删除此套件后，会连带删除此套件下的所有的 测试用例',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',

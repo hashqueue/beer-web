@@ -10,8 +10,11 @@ const notice = (msg) => {
 }
 
 const service = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/api' : 'http://127.0.0.1:8000/pro-api',
-  timeout: 5000
+  baseURL:
+    process.env.NODE_ENV === 'development'
+      ? process.env.VUE_APP_DEV_API_BASE_URL
+      : process.env.VUE_APP_PRO_API_BASE_URL,
+  timeout: 60000
 })
 
 // request interceptor

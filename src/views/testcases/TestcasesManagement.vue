@@ -1,17 +1,17 @@
 <template>
   <a-card>
     <div :class="advanced ? 'search' : null">
-      <a-form layout="horizontal" :form="configCombinationQueryForm">
+      <a-form layout="horizontal" :form="testcaseCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
           <a-row>
             <a-col :md="6" :sm="24">
-              <a-form-item label="配置名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input placeholder="请输入" allowClear v-decorator="['config_name']" />
+              <a-form-item label="用例名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['testcase_name']" />
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
-              <a-form-item label="配置描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
-                <a-input placeholder="请输入" allowClear v-decorator="['config_desc']" />
+              <a-form-item label="用例描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-input placeholder="请输入" allowClear v-decorator="['testcase_desc']" />
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
@@ -34,7 +34,7 @@
     </div>
     <div>
       <a-space class="operator">
-        <a-button @click="createNewConfig" type="primary">新建配置</a-button>
+        <a-button @click="createNewTestcase" type="primary">新建用例</a-button>
       </a-space>
       <standard-table
         :bordered="true"
@@ -52,9 +52,10 @@
           {{ text }}
         </div>
         <div slot="action" slot-scope="{ text, record }">
-          <a style="margin-right: 8px" @click="editConfig(record.id)"> <a-icon type="edit" />编辑 </a>
-          <a style="margin-right: 8px" @click="deleteConfig(record.id)"> <a-icon type="delete" />删除</a>
-          <a @click="getConfigDetail(record.id)"> <a-icon type="info-circle" />详情</a>
+          <a style="margin-right: 8px" @click="editTestcase(record.id)"> <a-icon type="edit" />编辑 </a>
+          <a style="margin-right: 8px" @click="deleteTestcase(record.id)"> <a-icon type="delete" />删除</a>
+          <a style="margin-right: 8px" @click="getTestcaseDetail(record.id)"> <a-icon type="info-circle" />详情</a>
+          <a @click="runTestcase(record.id)"> <a-icon type="play-circle" />运行</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -66,7 +67,7 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import { getConfigsDataList, deleteDetailConfig } from '@/services/configs'
+import { getTestcasesDataList, deleteDetailTestcase } from '@/services/testcases'
 import EventBus from '@/utils/event-bus'
 
 const columns = [
@@ -75,23 +76,23 @@ const columns = [
     dataIndex: 'id'
   },
   {
-    title: '配置名称',
-    dataIndex: 'config_name',
+    title: '用例名称',
+    dataIndex: 'testcase_name',
     ellipsis: true
   },
   {
-    title: '配置描述',
-    dataIndex: 'config_desc',
+    title: '用例描述',
+    dataIndex: 'testcase_desc',
     ellipsis: true
   },
   {
-    title: '所属项目',
-    dataIndex: 'project_name',
+    title: '所属套件',
+    dataIndex: 'testsuite_name',
     ellipsis: true
   },
   {
-    title: '所属项目ID',
-    dataIndex: 'project'
+    title: '所属套件ID',
+    dataIndex: 'testsuite'
   },
   {
     title: '创建人',
@@ -116,11 +117,11 @@ const columns = [
 ]
 
 export default {
-  name: 'ConfigsManagement',
+  name: 'TestcasesManagement',
   components: { StandardTable },
   created() {
-    // 获取配置列表数据
-    getConfigsDataList().then((res) => {
+    // 获取用例列表数据
+    getTestcasesDataList().then((res) => {
       this.dataSource = res.data.results
       this.pagination = {
         total: res.data.count,
@@ -131,16 +132,16 @@ export default {
         showTotal: () => `共 ${res.data.count} 条`
       }
     })
-    // 新建配置&更新配置 后刷新配置列表数据
-    EventBus.$on('refreshConfigsDataList', this.refreshConfigsDataList)
+    // 新建用例&更新用例 后刷新用例列表数据
+    EventBus.$on('refreshTestcasesDataList', this.refreshTestcasesDataList)
   },
   // 组件销毁时，注销自定义事件
   destroyed() {
-    EventBus.$off('refreshConfigsDataList')
+    EventBus.$off('refreshTestcasesDataList')
   },
   data() {
     return {
-      configCombinationQueryForm: this.$form.createForm(this, { name: 'config_combination_query_form' }),
+      testcaseCombinationQueryForm: this.$form.createForm(this, { name: 'testcase_combination_query_form' }),
       advanced: true,
       columns: columns,
       dataSource: [],
@@ -151,8 +152,11 @@ export default {
     }
   },
   methods: {
+    runTestcase(testcaseId) {
+      console.log(testcaseId)
+    },
     combinationQuery() {
-      this.configCombinationQueryForm.validateFields((err, values) => {
+      this.testcaseCombinationQueryForm.validateFields((err, values) => {
         if (err) {
           return false
         }
@@ -163,10 +167,10 @@ export default {
           }
         }
         this.loading = true
-        // 重新获取配置列表数据(传入过滤参数)并更新数据
+        // 重新获取用例列表数据(传入过滤参数)并更新数据
         values.page = this.pagination.current
         values.size = this.pagination.pageSize
-        getConfigsDataList(values).then((res) => {
+        getTestcasesDataList(values).then((res) => {
           this.filters = values
           this.dataSource = res.data.results
           this.pagination.total = res.data.count
@@ -178,11 +182,11 @@ export default {
     },
     combinationReset() {
       // 清空表单数据
-      this.configCombinationQueryForm.resetFields()
+      this.testcaseCombinationQueryForm.resetFields()
       // 刷新列表数据
       this.loading = true
-      // 重新获取配置列表数据(传入过滤参数)并更新数据
-      getConfigsDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
+      // 重新获取用例列表数据(传入过滤参数)并更新数据
+      getTestcasesDataList({ page: this.pagination.current, size: this.pagination.pageSize }).then((res) => {
         this.dataSource = res.data.results
         this.filters = {}
         this.pagination.total = res.data.count
@@ -191,18 +195,18 @@ export default {
         this.loading = false
       })
     },
-    // 创建新配置
-    createNewConfig() {
-      this.$router.push('/configs/create')
+    // 创建新用例
+    createNewTestcase() {
+      this.$router.push('/testcases/create')
     },
-    // 刷新配置列表数据
-    refreshConfigsDataList() {
+    // 刷新用例列表数据
+    refreshTestcasesDataList() {
       this.loading = true
       let filters = this.filters
       filters.page = this.pagination.current
       filters.size = this.pagination.pageSize
-      // 重新获取配置列表数据并更新数据
-      getConfigsDataList(filters).then((res) => {
+      // 重新获取用例列表数据并更新数据
+      getTestcasesDataList(filters).then((res) => {
         this.dataSource = res.data.results
         this.pagination.total = res.data.count
         this.pagination.current = res.data.current_page_num
@@ -210,29 +214,29 @@ export default {
         this.loading = false
       })
     },
-    // 编辑单个配置
-    editConfig(key) {
-      // 通过命名路由传递需要更新配置的配置ID
-      this.$router.push({ name: '更新配置', params: { updateConfigId: key } })
+    // 编辑单个用例
+    editTestcase(key) {
+      // 通过命名路由传递需要更新用例的用例ID
+      this.$router.push({ name: '更新用例', params: { updateTestcaseId: key } })
     },
-    getConfigDetail(detailConfigId) {
-      this.$router.push({ name: '配置详情', params: { detailConfigId: detailConfigId } })
+    getTestcaseDetail(detailTestcaseId) {
+      this.$router.push({ name: '用例详情', params: { detailTestcaseId: detailTestcaseId } })
     },
-    // 删除单个配置
-    deleteConfig(key) {
+    // 删除单个用例
+    deleteTestcase(key) {
       // confirm中使用self来访问当前组件中的this
       let self = this
-      // 删除配置确认对话框
+      // 删除用例确认对话框
       this.$confirm({
-        title: '确定要删除此配置吗?',
-        content: '删除此配置后，此配置信息将被彻底删除!',
+        title: '确定要删除此用例吗?',
+        content: '删除此用例后，此用例信息将被彻底删除!',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',
         onOk() {
-          deleteDetailConfig(key).then(() => {
+          deleteDetailTestcase(key).then(() => {
             self.$message.success('删除成功')
-            self.refreshConfigsDataList()
+            self.refreshTestcasesDataList()
           })
         },
         onCancel() {
@@ -254,7 +258,7 @@ export default {
       filters = this.filters
       filters.page = pagination.current
       filters.size = pagination.pageSize
-      getConfigsDataList(filters).then((res) => {
+      getTestcasesDataList(filters).then((res) => {
         this.dataSource = res.data.results
         this.pagination = pagination
         this.loading = false
