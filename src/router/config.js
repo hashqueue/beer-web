@@ -80,7 +80,7 @@ const options = {
             },
             {
               path: 'create',
-              name: '新增配置',
+              name: '新建配置',
               meta: {
                 invisible: true
               },
@@ -119,7 +119,7 @@ const options = {
             },
             {
               path: 'create',
-              name: '新增全局函数',
+              name: '新建全局函数',
               meta: {
                 invisible: true
               },
@@ -158,7 +158,7 @@ const options = {
             },
             {
               path: 'create',
-              name: '新增用例',
+              name: '新建用例',
               meta: {
                 invisible: true
               },
