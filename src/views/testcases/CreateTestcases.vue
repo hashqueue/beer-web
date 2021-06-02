@@ -175,6 +175,9 @@ export default {
       // console.log(this.testcaseForm.teststeps)
     },
     variableConversion(teststepVariable) {
+      /**
+       * 将数组数据转化为对象
+       */
       if (teststepVariable.length !== 0) {
         let newVariable = {}
         for (let item of teststepVariable) {
@@ -208,8 +211,6 @@ export default {
             item.extract = this.variableConversion(item.extract)
             if (item.json === '') {
               item.json = null
-            } else {
-              item.json = JSON.parse(item.json)
             }
           }
           // console.log('------------------------------------------转换后-----------------------------------')

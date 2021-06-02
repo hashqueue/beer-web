@@ -16,6 +16,22 @@ export function remove(arr, item) {
   }
 }
 
+export function isJSON(str) {
+  /**
+   * 判断一个字符串是否是JSON格式的字符串
+   */
+  if (typeof str === 'string') {
+    try {
+      let obj = JSON.parse(str)
+      return !!(typeof obj == 'object' && obj)
+    } catch (e) {
+      console.log('error：' + str + '!!!' + e)
+      return false
+    }
+  }
+  console.log('It is not a string!')
+}
+
 export function isRegExp(v) {
   return _toString.call(v) === '[object RegExp]'
 }

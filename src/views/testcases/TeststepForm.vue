@@ -111,7 +111,11 @@
         >
       </a-form-model-item>
     </a-form-model-item>
-    <a-form-model-item label="json参数">
+    <a-form-model-item
+      label="json参数"
+      :prop="'teststeps.' + teststepIndex + '.json'"
+      :rules="{ validator: validateStrIsJson, trigger: 'change' }"
+    >
       <monaco-editor
         :text-value.sync="teststep.json"
         :code-options="codeOptions"
@@ -228,39 +232,59 @@ export default {
   props: { teststep: Object, teststepIndex: Number, codeOptions: Object, editorDivIds: Array },
   components: { MonacoEditor },
   data() {
+    let validateJson = (rule, value, callback) => {
+      if (typeof value === 'string') {
+        if (value === '') {
+          // 等于空也可以，因为json参数可以为空
+          callback()
+        } else {
+          try {
+            let obj = JSON.parse(value)
+            if (typeof obj == 'object' && obj) {
+              callback()
+            } else {
+              callback(new Error('JSON参数格式不正确'))
+            }
+          } catch (e) {
+            callback(new Error('JSON参数格式不正确'))
+          }
+        }
+      }
+    }
     return {
+      validateStrIsJson: validateJson,
       methodOptions: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       validatorTypes: [
-        { key: 'equal_integer', text: '实际结果(整数类型)等于预期结果(整数类型)' },
-        { key: 'equal_float', text: '实际结果(小数类型)等于预期结果(小数类型)' },
-        { key: 'equal_boolean', text: '实际结果(布尔类型)等于预期结果(布尔类型)' },
-        { key: 'equal_null', text: '实际结果(null类型)等于预期结果(null类型)' },
-        { key: 'equal_string', text: '实际结果(字符串类型)等于预期结果(字符串类型)' },
-        { key: 'not_equal_integer', text: '实际结果(整数类型)不等于预期结果(整数类型)' },
-        { key: 'not_equal_float', text: '实际结果(小数类型)不等于预期结果(小数类型)' },
-        { key: 'not_equal_boolean', text: '实际结果(布尔类型)不等于预期结果(布尔类型)' },
-        { key: 'not_equal_null', text: '实际结果(null类型)不等于预期结果(null类型)' },
-        { key: 'not_equal_string', text: '实际结果(字符串类型)不等于预期结果(字符串类型)' },
-        { key: 'contained_by', text: '预期结果(字符串类型)中包含实际结果(字符串类型)' },
-        { key: 'contains', text: '实际结果(字符串类型)中包含预期结果(字符串类型)' },
-        { key: 'startswith', text: '实际结果(字符串类型)以预期结果(字符串类型)开头' },
-        { key: 'endswith', text: '实际结果(字符串类型)以预期结果(字符串类型)结尾' },
-        { key: 'startswith_by', text: '预期结果(字符串类型)以实际结果(字符串类型)开头' },
-        { key: 'endswith_by', text: '预期结果(字符串类型)以实际结果(字符串类型)结尾' },
-        { key: 'greater_or_equals_integer', text: '实际结果(整数类型)大于或等于预期结果(整数类型)' },
-        { key: 'greater_or_equals_float', text: '实际结果(小数类型)大于或等于预期结果(小数类型)' },
-        { key: 'greater_than_integer', text: '实际结果(整数类型)大于预期结果(整数类型)' },
-        { key: 'greater_than_float', text: '实际结果(小数类型)大于预期结果(小数类型)' },
-        { key: 'less_or_equals_integer', text: '实际结果(整数类型)小于或等于预期结果(整数类型)' },
-        { key: 'less_or_equals_float', text: '实际结果(小数类型)小于或等于预期结果(小数类型)' },
-        { key: 'less_than_integer', text: '实际结果(整数类型)小于预期结果(整数类型)' },
-        { key: 'less_than_float', text: '实际结果(小数类型)小于预期结果(小数类型)' },
-        { key: 'length_equal', text: '实际结果长度(整数类型)等于预期结果(整数类型)' },
-        { key: 'length_not_equal', text: '实际结果长度(整数类型)不等于预期结果(整数类型)' },
-        { key: 'length_greater_or_equals', text: '实际结果长度(整数类型)大于或等于预期结果(整数类型)' },
-        { key: 'length_greater_than', text: '实际结果长度(整数类型)大于预期结果(整数类型)' },
-        { key: 'length_less_or_equals', text: '实际结果长度(整数类型)小于或等于预期结果(整数类型)' },
-        { key: 'length_less_than', text: '实际结果长度(整数类型)小于预期结果(整数类型)' }
+        { key: 'equal_integer', text: '实际结果(整数类型) 等于 预期结果(整数类型)' },
+        { key: 'equal_float', text: '实际结果(小数类型) 等于 预期结果(小数类型)' },
+        { key: 'equal_boolean', text: '实际结果(布尔类型) 等于 预期结果(布尔类型)' },
+        { key: 'equal_null', text: '实际结果(null类型) 等于 预期结果(null类型)' },
+        { key: 'equal_string', text: '实际结果(字符串类型) 等于 预期结果(字符串类型)' },
+        { key: 'not_equal_integer', text: '实际结果(整数类型) 不等于 预期结果(整数类型)' },
+        { key: 'not_equal_float', text: '实际结果(小数类型) 不等于 预期结果(小数类型)' },
+        { key: 'not_equal_boolean', text: '实际结果(布尔类型) 不等于 预期结果(布尔类型)' },
+        { key: 'not_equal_null', text: '实际结果(null类型) 不等于 预期结果(null类型)' },
+        { key: 'not_equal_string', text: '实际结果(字符串类型) 不等于 预期结果(字符串类型)' },
+        { key: 'contained_by', text: '预期结果(字符串类型)中 包含 实际结果(字符串类型)' },
+        { key: 'contains', text: '实际结果(字符串类型)中 包含 预期结果(字符串类型)' },
+        { key: 'startswith', text: '实际结果(字符串类型) 以 预期结果(字符串类型) 开头' },
+        { key: 'endswith', text: '实际结果(字符串类型) 以 预期结果(字符串类型) 结尾' },
+        { key: 'startswith_by', text: '预期结果(字符串类型) 以 实际结果(字符串类型) 开头' },
+        { key: 'endswith_by', text: '预期结果(字符串类型) 以 实际结果(字符串类型) 结尾' },
+        { key: 'greater_or_equals_integer', text: '实际结果(整数类型) 大于或等于 预期结果(整数类型)' },
+        { key: 'greater_or_equals_float', text: '实际结果(小数类型) 大于或等于 预期结果(小数类型)' },
+        { key: 'greater_than_integer', text: '实际结果(整数类型) 大于 预期结果(整数类型)' },
+        { key: 'greater_than_float', text: '实际结果(小数类型) 大于 预期结果(小数类型)' },
+        { key: 'less_or_equals_integer', text: '实际结果(整数类型) 小于或等于 预期结果(整数类型)' },
+        { key: 'less_or_equals_float', text: '实际结果(小数类型) 小于或等于 预期结果(小数类型)' },
+        { key: 'less_than_integer', text: '实际结果(整数类型) 小于 预期结果(整数类型)' },
+        { key: 'less_than_float', text: '实际结果(小数类型) 小于 预期结果(小数类型)' },
+        { key: 'length_equal', text: '实际结果长度(整数类型) 等于 预期结果(整数类型)' },
+        { key: 'length_not_equal', text: '实际结果长度(整数类型) 不等于 预期结果(整数类型)' },
+        { key: 'length_greater_or_equals', text: '实际结果长度(整数类型) 大于或等于 预期结果(整数类型)' },
+        { key: 'length_greater_than', text: '实际结果长度(整数类型) 大于 预期结果(整数类型)' },
+        { key: 'length_less_or_equals', text: '实际结果长度(整数类型) 小于或等于 预期结果(整数类型)' },
+        { key: 'length_less_than', text: '实际结果长度(整数类型) 小于 预期结果(整数类型)' }
       ]
     }
   }
