@@ -1,13 +1,22 @@
 <template>
-  <div :id="editorDivId" @input="change" :style="{ width: divWidth, height: divHeight }"></div>
+  <div :id="editorDivId" :style="{ width: codeOptions.divWidth, height: codeOptions.divHeight }"></div>
 </template>
 
 <script>
 import * as monaco from 'monaco-editor'
 export default {
   name: 'MonacoEditor',
-  // 组件引用时添加v-model指令，所以value属性就存在，他的值为v-model等于号后面的变量，通过props将他传递过来
-  props: ['value', 'language', 'tabSize', 'fontSize', 'theme', 'readOnly', 'divWidth', 'divHeight', 'editorDivId'],
+  props: {
+    textValue: String,
+    codeOptions: Object,
+    editorDivId: String
+  },
+  created() {
+    let { divWidth, divHeight, ...options } = this.codeOptions
+    this.divWidth = divWidth
+    this.divHeight = divHeight
+    this.editorOptions = options
+  },
   mounted() {
     // 挂载editor
     this.initEditor()
@@ -19,22 +28,15 @@ export default {
   data() {
     return {
       editor: undefined, // 文本编辑器
-      codeOptions: {
-        language: this.language, // 语言
-        readOnly: this.readOnly, // 只读
-        tabSize: this.tabSize, // tab 缩进长度
-        fontSize: this.fontSize, // 字体大小
-        theme: this.theme, // 官方自带三种主题vs, hc-black, or vs-dark
-        minimap: {
-          enabled: false // 不显示代码缩略图
-        }
-      }
+      divWidth: undefined,
+      divHeight: undefined,
+      editorOptions: undefined
     }
   },
   watch: {
-    // 监听父组件中的value值的变化，用于与编辑器的内容进行双向绑定
-    value() {
-      this.editor.setValue(this.value)
+    // 监听父组件中的textValue值的变化，用于与编辑器的内容进行双向绑定
+    textValue() {
+      this.editor.setValue(this.textValue)
     }
   },
   methods: {
@@ -43,14 +45,20 @@ export default {
        * 初始化JSON编辑器，确保dom已经渲染
        */
       // 创建一个editor实例，并将它挂载到上面的div上
-      this.editor = monaco.editor.create(document.getElementById(this.editorDivId), this.codeOptions)
-    },
-    change() {
-      // 鼠标移出编辑器时触发，将编辑器中的内容赋值给父组件中测试用例表单中的测试步骤中的json字段
-      this.editor.onMouseLeave(() => {
-        this.$emit('input', this.editor.getValue())
+      this.editor = monaco.editor.create(document.getElementById(this.editorDivId), this.editorOptions)
+      // 编辑器内模型数据发生改变时触发，只获取编辑器内的最新值，不更新与父组件中双向绑定的值
+      this.editor.onDidChangeModelContent(() => {
+        let self = this
+        let newTextValue = this.editor.getValue()
+        // 鼠标移出编辑器时触发，将编辑器中的内容赋值给父组件中测试用例表单中的测试步骤中的json字段
+        self.editor.onMouseLeave(() => {
+          // 通过在父组件里使用`.sync`修饰符实现prop双向绑定  e.g :textValue.sync="teststep.json"
+          self.$emit('update:textValue', newTextValue)
+        })
+        // this.$emit('update:textValue', this.editor.getValue())
       })
-    }
+    },
+    change() {}
   }
 }
 </script>
