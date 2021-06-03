@@ -4,24 +4,41 @@
       <a-form layout="horizontal" :form="testcaseCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
           <a-row>
-            <a-col :md="6" :sm="24">
+            <a-col :md="8" :sm="24">
               <a-form-item label="用例名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['testcase_name']" />
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
+            <a-col :md="8" :sm="24">
               <a-form-item label="用例描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['testcase_desc']" />
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
+            <a-col :md="8" :sm="24">
               <a-form-item label="创建人" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['creator']" />
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
+          </a-row>
+          <a-row>
+            <a-col :md="8" :sm="24">
               <a-form-item label="最近修改人" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['modifier']" />
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="所属套件" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-select
+                  show-search
+                  :filter-option="filterOption"
+                  placeholder="在此输入测试套件名称以进行搜索"
+                  v-decorator="['testsuite']"
+                  @search="searchWithTestSuiteName"
+                >
+                  <a-select-option v-for="item in searchFilterTestSuiteDataList" :key="item.id">
+                    套件名称（{{ item.testsuite_name }}）|&nbsp;套件ID（{{ item.id }}）
+                  </a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </a-row>
@@ -69,6 +86,7 @@
 import StandardTable from '@/components/table/StandardTable'
 import { getTestcasesDataList, deleteDetailTestcase } from '@/services/testcases'
 import EventBus from '@/utils/event-bus'
+import { getTestSuitesDataList } from '@/services/testsuites'
 
 const columns = [
   {
@@ -132,6 +150,10 @@ export default {
         showTotal: () => `共 ${res.data.count} 条`
       }
     })
+    // 获取套件列表数据，用于查询过滤表格数据时使用
+    getTestSuitesDataList().then((res) => {
+      this.searchFilterTestSuiteDataList = res.data.results
+    })
     // 新建用例&更新用例 后刷新用例列表数据
     EventBus.$on('refreshTestcasesDataList', this.refreshTestcasesDataList)
   },
@@ -142,6 +164,7 @@ export default {
   data() {
     return {
       testcaseCombinationQueryForm: this.$form.createForm(this, { name: 'testcase_combination_query_form' }),
+      searchFilterTestSuiteDataList: undefined,
       advanced: true,
       columns: columns,
       dataSource: [],
@@ -272,6 +295,28 @@ export default {
     onSelectChange() {
       // this.$message.info('选中行改变了')
       console.log('选中行改变了')
+    },
+    searchWithTestSuiteName(testsuiteName) {
+      if (testsuiteName !== '') {
+        getTestSuitesDataList({ testsuite_name: testsuiteName }).then((res) => {
+          if (res.data.count !== 0) {
+            let originTestSuiteDataList = this.searchFilterTestSuiteDataList
+            originTestSuiteDataList.push(...res.data.results)
+            let data = {}
+            let newTestSuiteDataList = []
+            for (let item of originTestSuiteDataList) {
+              if (!data[item.id]) {
+                newTestSuiteDataList.push(item)
+                data[item.id] = true
+              }
+            }
+            this.searchFilterTestSuiteDataList = newTestSuiteDataList
+          }
+        })
+      }
+    },
+    filterOption(input, option) {
+      return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
   }
 }

@@ -4,24 +4,41 @@
       <a-form layout="horizontal" :form="testsuiteCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
           <a-row>
-            <a-col :md="6" :sm="24">
+            <a-col :md="8" :sm="24">
               <a-form-item label="套件名称" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['testsuite_name']" />
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
+            <a-col :md="8" :sm="24">
               <a-form-item label="套件描述" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['testsuite_desc']" />
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
+            <a-col :md="8" :sm="24">
               <a-form-item label="创建人" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['creator']" />
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
+          </a-row>
+          <a-row>
+            <a-col :md="8" :sm="24">
               <a-form-item label="最近修改人" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
                 <a-input placeholder="请输入" allowClear v-decorator="['modifier']" />
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="所属项目" :labelCol="{ span: 5 }" :wrapperCol="{ span: 18, offset: 1 }">
+                <a-select
+                  show-search
+                  :filter-option="filterOption"
+                  placeholder="在此输入项目名称以进行搜索"
+                  v-decorator="['project']"
+                  @search="searchWithProjectName"
+                >
+                  <a-select-option v-for="item in searchFilterProjectDataList" :key="item.id">
+                    项目名称（{{ item.project_name }}）|&nbsp;项目ID（{{ item.id }}）
+                  </a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </a-row>
@@ -150,10 +167,15 @@ export default {
         showTotal: () => `共 ${res.data.count} 条`
       }
     })
+    // 获取项目列表数据，用于查询过滤表格数据时使用
+    getProjectsDataList().then((res) => {
+      this.searchFilterProjectDataList = res.data.results
+    })
   },
   data() {
     return {
       testsuiteCombinationQueryForm: this.$form.createForm(this, { name: 'testsuite_combination_query_form' }),
+      searchFilterProjectDataList: undefined,
       advanced: true,
       columns: columns,
       dataSource: [],
@@ -338,6 +360,28 @@ export default {
     onSelectChange() {
       // this.$message.info('选中行改变了')
       console.log('选中行改变了')
+    },
+    searchWithProjectName(projectName) {
+      if (projectName !== '') {
+        getProjectsDataList({ project_name: projectName }).then((res) => {
+          if (res.data.count !== 0) {
+            let originProjectDataList = this.searchFilterProjectDataList
+            originProjectDataList.push(...res.data.results)
+            let data = {}
+            let newProjectDataList = []
+            for (let item of originProjectDataList) {
+              if (!data[item.id]) {
+                newProjectDataList.push(item)
+                data[item.id] = true
+              }
+            }
+            this.searchFilterProjectDataList = newProjectDataList
+          }
+        })
+      }
+    },
+    filterOption(input, option) {
+      return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
   }
 }

@@ -1,6 +1,7 @@
 <template>
-  <a-card :bordered="false" v-if="testcaseForm !== undefined">
-    <detail-list title="测试用例基本信息">
+  <a-card :bordered="false" title="测试用例详情" v-if="testcaseForm !== undefined">
+    <a-button slot="extra" type="primary" @click="runCurrentTestcase" disabled>运行用例</a-button>
+    <detail-list title="用例基本信息">
       <detail-list-item term="ID">{{ testcaseForm.id }}</detail-list-item>
       <detail-list-item term="用例名称">{{ testcaseForm.testcase_name }}</detail-list-item>
       <detail-list-item term="用例描述">{{ testcaseForm.testcase_desc }}</detail-list-item>
@@ -12,98 +13,99 @@
       <detail-list-item term="更新时间">{{ testcaseForm.update_time }}</detail-list-item>
     </detail-list>
     <a-divider style="margin-bottom: 32px" />
-    <div class="title">测试步骤</div>
-    <a-tabs hide-add v-model="activeKey">
-      <a-tab-pane
-        v-for="(teststep, index1) in testcaseForm.teststeps"
-        :key="index1 + 1"
-        :tab="'测试步骤' + (index1 + 1)"
-      >
-        <a-card>
-          <detail-list title="测试步骤基本信息">
-            <detail-list-item term="ID">{{ teststep.id }}</detail-list-item>
-            <detail-list-item term="测试步骤名称">{{ teststep.teststep_name }}</detail-list-item>
-            <detail-list-item term="请求方法">{{ teststep.method }}</detail-list-item>
-            <detail-list-item term="请求URL地址">{{ teststep.url_path }}</detail-list-item>
-            <detail-list-item term="测试步骤描述">{{ teststep.desc }}</detail-list-item>
-          </detail-list>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">请求头(headers)参数</div>
-          <a-table
-            bordered
-            :row-key="(record) => record.key"
-            style="margin-bottom: 24px"
-            :columns="parametersColumns"
-            :dataSource="teststep.headers"
-            :pagination="false"
-          >
-          </a-table>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">查询字符串(params)参数</div>
-          <a-table
-            bordered
-            :row-key="(record) => record.key"
-            style="margin-bottom: 24px"
-            :columns="parametersColumns"
-            :dataSource="teststep.params"
-            :pagination="false"
-          >
-          </a-table>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">cookies参数</div>
-          <a-table
-            bordered
-            :row-key="(record) => record.key"
-            style="margin-bottom: 24px"
-            :columns="parametersColumns"
-            :dataSource="teststep.cookies"
-            :pagination="false"
-          >
-          </a-table>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">json参数</div>
-          <monaco-editor
-            :text-value.sync="teststep.json"
-            :code-options="codeOptions"
-            :editor-div-id="editorDivIds[index1]"
-            :is-read-only="true"
-          ></monaco-editor>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">x-www-form-urlencoded参数</div>
-          <a-table
-            bordered
-            :row-key="(record) => record.key"
-            style="margin-bottom: 24px"
-            :columns="parametersColumns"
-            :dataSource="teststep.data"
-            :pagination="false"
-          >
-          </a-table>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">测试步骤提取变量(extract)</div>
-          <a-table
-            bordered
-            :row-key="(record) => record.key"
-            style="margin-bottom: 24px"
-            :columns="extractColumns"
-            :dataSource="teststep.extract"
-            :pagination="false"
-          >
-          </a-table>
-          <a-divider style="margin-bottom: 32px" />
-          <div class="title">断言</div>
-          <a-table
-            bordered
-            :row-key="(record) => record.validator_type"
-            style="margin-bottom: 24px"
-            :columns="assertColumns"
-            :dataSource="teststep.step_validators"
-            :pagination="false"
-          >
-          </a-table>
-        </a-card>
-      </a-tab-pane>
-    </a-tabs>
+    <a-card title="测试步骤" :style="{ marginTop: '32px' }">
+      <a-tabs hide-add v-model="activeKey">
+        <a-tab-pane
+          v-for="(teststep, index1) in testcaseForm.teststeps"
+          :key="index1 + 1"
+          :tab="'测试步骤' + (index1 + 1)"
+        >
+          <a-card>
+            <detail-list title="步骤基本信息">
+              <detail-list-item term="ID">{{ teststep.id }}</detail-list-item>
+              <detail-list-item term="测试步骤名称">{{ teststep.teststep_name }}</detail-list-item>
+              <detail-list-item term="请求方法">{{ teststep.method }}</detail-list-item>
+              <detail-list-item term="请求URL地址">{{ teststep.url_path }}</detail-list-item>
+              <detail-list-item term="测试步骤描述">{{ teststep.desc }}</detail-list-item>
+            </detail-list>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">请求头(headers)参数</div>
+            <a-table
+              bordered
+              :row-key="(record) => record.key"
+              style="margin-bottom: 24px"
+              :columns="parametersColumns"
+              :dataSource="teststep.headers"
+              :pagination="false"
+            >
+            </a-table>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">查询字符串(params)参数</div>
+            <a-table
+              bordered
+              :row-key="(record) => record.key"
+              style="margin-bottom: 24px"
+              :columns="parametersColumns"
+              :dataSource="teststep.params"
+              :pagination="false"
+            >
+            </a-table>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">cookies参数</div>
+            <a-table
+              bordered
+              :row-key="(record) => record.key"
+              style="margin-bottom: 24px"
+              :columns="parametersColumns"
+              :dataSource="teststep.cookies"
+              :pagination="false"
+            >
+            </a-table>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">json参数</div>
+            <monaco-editor
+              :text-value.sync="teststep.json"
+              :code-options="codeOptions"
+              :editor-div-id="editorDivIds[index1]"
+              :is-read-only="true"
+            ></monaco-editor>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">x-www-form-urlencoded参数</div>
+            <a-table
+              bordered
+              :row-key="(record) => record.key"
+              style="margin-bottom: 24px"
+              :columns="parametersColumns"
+              :dataSource="teststep.data"
+              :pagination="false"
+            >
+            </a-table>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">测试步骤提取变量(extract)</div>
+            <a-table
+              bordered
+              :row-key="(record) => record.key"
+              style="margin-bottom: 24px"
+              :columns="extractColumns"
+              :dataSource="teststep.extract"
+              :pagination="false"
+            >
+            </a-table>
+            <a-divider style="margin-bottom: 32px" />
+            <div class="title">断言</div>
+            <a-table
+              bordered
+              :row-key="(record) => record.validator_type"
+              style="margin-bottom: 24px"
+              :columns="assertColumns"
+              :dataSource="teststep.step_validators"
+              :pagination="false"
+            >
+            </a-table>
+          </a-card>
+        </a-tab-pane>
+      </a-tabs>
+    </a-card>
   </a-card>
   <a-card v-else>
     <a-spin size="large" />
@@ -259,6 +261,9 @@ export default {
     }
   },
   methods: {
+    runCurrentTestcase() {
+      console.log('runCurrentTestcase')
+    },
     conversionResponseDataToVariable(data) {
       /**
        * 将响应数据中的部分对象类型数据转化成数组类型数据(填后端的坑)
