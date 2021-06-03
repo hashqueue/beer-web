@@ -14,7 +14,8 @@
     <a-divider style="margin-bottom: 32px" />
     <div class="title">全局变量</div>
     <a-table
-      row-key="id"
+      bordered
+      :row-key="(record) => record.key"
       style="margin-bottom: 24px"
       :columns="configsColumns"
       :dataSource="configForm.global_variable"
@@ -35,12 +36,14 @@ const configsColumns = [
   {
     title: '变量名',
     dataIndex: 'key',
-    key: 'key'
+    key: 'key',
+    ellipsis: true
   },
   {
     title: '变量值',
     dataIndex: 'value',
-    key: 'value'
+    key: 'value',
+    ellipsis: true
   }
 ]
 export default {

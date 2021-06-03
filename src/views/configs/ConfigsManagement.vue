@@ -37,7 +37,7 @@
         <a-button @click="createNewConfig" type="primary">新建配置</a-button>
       </a-space>
       <standard-table
-        :bordered="true"
+        bordered
         :columns="columns"
         :loading="loading"
         :dataSource="dataSource"

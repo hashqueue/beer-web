@@ -54,7 +54,7 @@
         @cancel="handleCancel"
       />
       <standard-table
-        :bordered="true"
+        bordered
         :columns="columns"
         :loading="loading"
         :dataSource="dataSource"

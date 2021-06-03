@@ -244,9 +244,11 @@ export default {
               callback()
             } else {
               callback(new Error('JSON参数格式不正确'))
+              this.$message.error('JSON参数格式不正确')
             }
           } catch (e) {
             callback(new Error('JSON参数格式不正确'))
+            this.$message.error('JSON参数格式不正确')
           }
         }
       }

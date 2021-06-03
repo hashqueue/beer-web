@@ -37,7 +37,7 @@
         <a-button @click="createNewFunction" type="primary">新建函数</a-button>
       </a-space>
       <standard-table
-        :bordered="true"
+        bordered
         :columns="columns"
         :loading="loading"
         :dataSource="dataSource"

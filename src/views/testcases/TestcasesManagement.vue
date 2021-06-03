@@ -37,7 +37,7 @@
         <a-button @click="createNewTestcase" type="primary">新建用例</a-button>
       </a-space>
       <standard-table
-        :bordered="true"
+        bordered
         :columns="columns"
         :loading="loading"
         :dataSource="dataSource"
