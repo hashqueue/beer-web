@@ -69,10 +69,10 @@
           {{ text }}
         </div>
         <div slot="action" slot-scope="{ text, record }">
-          <a style="margin-right: 8px" @click="editTestcase(record.id)"> <a-icon type="edit" />编辑 </a>
-          <a style="margin-right: 8px" @click="deleteTestcase(record.id)"> <a-icon type="delete" />删除</a>
-          <a style="margin-right: 8px" @click="getTestcaseDetail(record.id)"> <a-icon type="info-circle" />详情</a>
-          <a @click="runTestcase(record.id)"> <a-icon type="play-circle" />运行</a>
+          <a @click="editTestcase(record.id)"> <a-icon type="edit" />编辑 </a>
+          <a style="margin-left: 4px" @click="deleteTestcase(record.id)"> <a-icon type="delete" />删除</a>
+          <a @click="getTestcaseDetail(record.id)"> <a-icon type="info-circle" />详情</a>
+          <a style="margin-left: 8px" @click="runTestcase(record.id)"> <a-icon type="play-circle" />运行</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -84,7 +84,7 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import { getTestcasesDataList, deleteDetailTestcase } from '@/services/testcases'
+import { getTestcasesDataList, deleteDetailTestcase, runDetailTestcase } from '@/services/testcases'
 import EventBus from '@/utils/event-bus'
 import { getTestSuitesDataList } from '@/services/testsuites'
 
@@ -111,6 +111,15 @@ const columns = [
   {
     title: '所属套件ID',
     dataIndex: 'testsuite'
+  },
+  {
+    title: '所属项目',
+    dataIndex: 'project_name',
+    ellipsis: true
+  },
+  {
+    title: '所属项目ID',
+    dataIndex: 'project_id'
   },
   {
     title: '创建人',
@@ -176,7 +185,8 @@ export default {
   },
   methods: {
     runTestcase(testcaseId) {
-      console.log(testcaseId)
+      // console.log(testcaseId)
+      runDetailTestcase(testcaseId)
     },
     combinationQuery() {
       this.testcaseCombinationQueryForm.validateFields((err, values) => {

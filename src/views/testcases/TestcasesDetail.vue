@@ -7,6 +7,8 @@
       <detail-list-item term="用例描述">{{ testcaseForm.testcase_desc }}</detail-list-item>
       <detail-list-item term="所属套件ID">{{ testcaseForm.testsuite }}</detail-list-item>
       <detail-list-item term="所属套件名称">{{ testcaseForm.testsuite_name }}</detail-list-item>
+      <detail-list-item term="所属项目ID">{{ testcaseForm.project_id }}</detail-list-item>
+      <detail-list-item term="所属项目名称">{{ testcaseForm.project_name }}</detail-list-item>
       <detail-list-item term="创建人">{{ testcaseForm.creator }}</detail-list-item>
       <detail-list-item term="最近修改人">{{ testcaseForm.modifier }}</detail-list-item>
       <detail-list-item term="创建时间">{{ testcaseForm.create_time }}</detail-list-item>
