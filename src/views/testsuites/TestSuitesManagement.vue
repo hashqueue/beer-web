@@ -290,14 +290,17 @@ export default {
               this.testsuiteForm.projectDataList.push(res2.data)
             })
           }
-          this.$refs.testsuiteFormRef.form.setFieldsValue({
-            testsuite_name: res.data.testsuite_name,
-            testsuite_desc: res.data.testsuite_desc,
-            project: res.data.project
-          })
           this.testsuiteForm.title = '编辑套件'
           this.testsuiteForm.testsuiteId = key
           this.testsuiteForm.visible = true
+          // 将回调函数的内容延迟到下次DOM更新循环之后执行
+          this.$nextTick(() => {
+            this.$refs.testsuiteFormRef.form.setFieldsValue({
+              testsuite_name: res.data.testsuite_name,
+              testsuite_desc: res.data.testsuite_desc,
+              project: res.data.project
+            })
+          })
         })
       })
     },

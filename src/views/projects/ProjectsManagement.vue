@@ -231,13 +231,16 @@ export default {
     // 编辑单个项目
     editProject(key) {
       getProjectDetail(key).then((res) => {
-        this.$refs.projectFormRef.form.setFieldsValue({
-          project_name: res.data.project_name,
-          project_desc: res.data.project_desc
-        })
         this.projectForm.title = '编辑项目'
         this.projectForm.projectId = key
         this.projectForm.visible = true
+        // 将回调函数的内容延迟到下次DOM更新循环之后执行
+        this.$nextTick(() => {
+          this.$refs.projectFormRef.form.setFieldsValue({
+            project_name: res.data.project_name,
+            project_desc: res.data.project_desc
+          })
+        })
       })
     },
     handleCancel(title) {

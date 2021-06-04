@@ -97,7 +97,7 @@
             <div class="title">断言</div>
             <a-table
               bordered
-              :row-key="(record) => record.validator_type"
+              :row-key="(record) => record.validator_type + Math.random()"
               style="margin-bottom: 24px"
               :columns="assertColumns"
               :dataSource="teststep.step_validators"
