@@ -16,7 +16,7 @@
       <detail-list-item term="任务创建时间">{{ taskForm.date_created }}</detail-list-item>
       <detail-list-item term="任务完成时间">{{ taskForm.date_done }}</detail-list-item>
     </detail-list>
-    <detail-list v-else>
+    <detail-list v-else class="example">
       <a-spin size="large" />
     </detail-list>
     <a-divider style="margin-bottom: 32px" />
@@ -231,5 +231,8 @@ export default {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
+}
+.example {
+  text-align: center;
 }
 </style>

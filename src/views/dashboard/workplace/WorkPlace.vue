@@ -87,7 +87,7 @@
       </a-drawer>
     </template>
   </page-layout>
-  <page-layout v-else>
+  <page-layout v-else class="example">
     <a-spin size="large" />
   </page-layout>
 </template>
@@ -253,6 +253,8 @@ export default {
 }
 </script>
 
-<style lang="less">
-@import 'index';
+<style lang="less" scoped>
+.example {
+  text-align: center;
+}
 </style>

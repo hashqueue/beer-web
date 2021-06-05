@@ -179,6 +179,14 @@ const options = {
                 invisible: true
               },
               component: () => import('@/views/testcases/TestcasesDetail')
+            },
+            {
+              path: 'run/result',
+              name: '运行结果',
+              meta: {
+                invisible: true
+              },
+              component: () => import('@/views/testcases/RunTestcaseResultDetail')
             }
           ]
         },

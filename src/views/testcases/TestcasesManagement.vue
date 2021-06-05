@@ -72,21 +72,31 @@
           <a @click="editTestcase(record.id)"> <a-icon type="edit" />编辑 </a>
           <a style="margin-left: 4px" @click="deleteTestcase(record.id)"> <a-icon type="delete" />删除</a>
           <a @click="getTestcaseDetail(record.id)"> <a-icon type="info-circle" />详情</a>
-          <a style="margin-left: 8px" @click="runTestcase(record.id)"> <a-icon type="play-circle" />运行</a>
+          <a style="margin-left: 8px" @click="runTestcase(record.id, record.project_id)">
+            <a-icon type="play-circle" />运行</a
+          >
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
         </template>
       </standard-table>
     </div>
+    <run-testcases
+      ref="runTestcaseFormRef"
+      :visible="runTestcaseForm.visible"
+      :projectId="runTestcaseForm.projectId"
+      :testcaseId="runTestcaseForm.testcaseId"
+      @cancel="handleCancel"
+    />
   </a-card>
 </template>
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import { getTestcasesDataList, deleteDetailTestcase, runDetailTestcase } from '@/services/testcases'
+import { getTestcasesDataList, deleteDetailTestcase } from '@/services/testcases'
 import EventBus from '@/utils/event-bus'
 import { getTestSuitesDataList } from '@/services/testsuites'
+import RunTestcases from '@/views/testcases/RunTestcases'
 
 const columns = [
   {
@@ -145,7 +155,7 @@ const columns = [
 
 export default {
   name: 'TestcasesManagement',
-  components: { StandardTable },
+  components: { StandardTable, RunTestcases },
   created() {
     // 获取用例列表数据
     getTestcasesDataList().then((res) => {
@@ -180,13 +190,27 @@ export default {
       selectedRows: [],
       pagination: {},
       filters: {},
-      loading: false
+      loading: false,
+      runTestcaseForm: {
+        visible: false,
+        projectId: undefined,
+        testcaseId: undefined
+      }
     }
   },
   methods: {
-    runTestcase(testcaseId) {
-      // console.log(testcaseId)
-      runDetailTestcase(testcaseId)
+    handleCancel(title) {
+      // 关闭运行测试用例弹出框
+      if (title === '运行测试用例') {
+        this.runTestcaseForm.visible = false
+        this.$refs.runTestcaseFormRef.form.resetFields()
+      }
+    },
+    runTestcase(testcaseId, projectId) {
+      // 运行测试用例
+      this.runTestcaseForm.visible = true
+      this.runTestcaseForm.projectId = projectId
+      this.runTestcaseForm.testcaseId = testcaseId
     },
     combinationQuery() {
       this.testcaseCombinationQueryForm.validateFields((err, values) => {
@@ -347,5 +371,11 @@ export default {
   .fold {
     width: 100%;
   }
+}
+.title {
+  color: @title-color;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
 }
 </style>

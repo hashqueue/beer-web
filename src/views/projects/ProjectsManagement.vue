@@ -151,11 +151,11 @@ export default {
       projectForm: {
         visible: false,
         title: '新建项目',
-        projectId: null
+        projectId: undefined
       },
       runProjectForm: {
         visible: false,
-        projectId: null
+        projectId: undefined
       }
     }
   },

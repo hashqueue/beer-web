@@ -23,7 +23,7 @@
     >
     </a-table>
   </a-card>
-  <a-card v-else>
+  <a-card v-else class="example">
     <a-spin size="large" />
   </a-card>
 </template>
@@ -67,8 +67,7 @@ export default {
       configForm: undefined,
       detailConfigId: undefined
     }
-  },
-  methods: {}
+  }
 }
 </script>
 
@@ -78,5 +77,8 @@ export default {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
+}
+.example {
+  text-align: center;
 }
 </style>

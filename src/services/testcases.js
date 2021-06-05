@@ -42,10 +42,11 @@ export function deleteDetailTestcase(testcaseId) {
   })
 }
 
-export function runDetailTestcase(testcaseId) {
+export function runDetailTestcase(testcaseId, data) {
   return request({
     url: `/testcases/${testcaseId}/run/`,
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 

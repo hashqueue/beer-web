@@ -11,7 +11,7 @@
       <detail-list-item term="所属项目ID">{{ functionForm.project }}</detail-list-item>
       <detail-list-item term="所属项目名称">{{ functionForm.project_name }}</detail-list-item>
     </detail-list>
-    <detail-list v-else>
+    <detail-list v-else class="example">
       <a-spin size="large" />
     </detail-list>
     <a-divider style="margin-bottom: 32px" />
@@ -85,5 +85,8 @@ export default {
 #editor {
   width: 95%;
   height: 600px;
+}
+.example {
+  text-align: center;
 }
 </style>
