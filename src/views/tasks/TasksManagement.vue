@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="dataSource === undefined">
     <div>
       <standard-table
         bordered
@@ -98,7 +98,7 @@ export default {
       configCombinationQueryForm: this.$form.createForm(this, { name: 'config_combination_query_form' }),
       advanced: true,
       columns: columns,
-      dataSource: [],
+      dataSource: undefined,
       selectedRows: [],
       pagination: {},
       filters: {},

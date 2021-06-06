@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" title="测试用例详情" v-if="testcaseForm !== undefined">
+  <a-card :bordered="false" title="测试用例详情" :loading="testcaseForm === undefined">
     <a-button slot="extra" type="primary" @click="runCurrentTestcase" disabled>运行用例</a-button>
     <detail-list title="用例基本信息">
       <detail-list-item term="ID">{{ testcaseForm.id }}</detail-list-item>
@@ -108,9 +108,6 @@
         </a-tab-pane>
       </a-tabs>
     </a-card>
-  </a-card>
-  <a-card v-else class="example">
-    <a-spin size="large" />
   </a-card>
 </template>
 
@@ -290,8 +287,5 @@ export default {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
-}
-.example {
-  text-align: center;
 }
 </style>

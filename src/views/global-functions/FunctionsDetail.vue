@@ -1,6 +1,6 @@
 <template>
-  <a-card :bordered="false">
-    <detail-list title="基本信息" v-if="functionForm !== undefined">
+  <a-card :bordered="false" :loading="functionForm === undefined">
+    <detail-list title="基本信息">
       <detail-list-item term="ID">{{ functionForm.id }}</detail-list-item>
       <detail-list-item term="函数名称">{{ functionForm.function_name }}</detail-list-item>
       <detail-list-item term="函数描述">{{ functionForm.function_desc }}</detail-list-item>
@@ -10,9 +10,6 @@
       <detail-list-item term="更新时间">{{ functionForm.update_time }}</detail-list-item>
       <detail-list-item term="所属项目ID">{{ functionForm.project }}</detail-list-item>
       <detail-list-item term="所属项目名称">{{ functionForm.project_name }}</detail-list-item>
-    </detail-list>
-    <detail-list v-else class="example">
-      <a-spin size="large" />
     </detail-list>
     <a-divider style="margin-bottom: 32px" />
     <div class="title">全局函数文件内容</div>

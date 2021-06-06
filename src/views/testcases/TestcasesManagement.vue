@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="dataSource === undefined">
     <div :class="advanced ? 'search' : null">
       <a-form layout="horizontal" :form="testcaseCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
@@ -186,7 +186,7 @@ export default {
       searchFilterTestSuiteDataList: undefined,
       advanced: true,
       columns: columns,
-      dataSource: [],
+      dataSource: undefined,
       selectedRows: [],
       pagination: {},
       filters: {},

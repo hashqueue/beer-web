@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false">
+  <a-card :bordered="false" :loading="taskForm === undefined">
     <detail-list title="任务基本信息" v-if="taskForm !== undefined">
       <detail-list-item term="ID">{{ taskForm.id }}</detail-list-item>
       <detail-list-item term="任务类型">{{

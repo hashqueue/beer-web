@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="functionForm === undefined">
     <a-form-model
       ref="functionFormRuleFormRef"
       :model="functionForm"
@@ -68,12 +68,7 @@ export default {
       wrapperCol: { span: 20 },
       projectDataList: undefined,
       updateFunctionId: undefined,
-      functionForm: {
-        function_name: '',
-        function_desc: '',
-        project: '',
-        function_body: '' // monaco-editor编辑器里的内容
-      },
+      functionForm: undefined,
       codeOptions: {
         value: '# -*- coding: utf-8 -*-\n', // 编辑器初始显示文字
         language: 'python', // 语言

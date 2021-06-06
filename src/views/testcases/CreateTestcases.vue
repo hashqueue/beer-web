@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="testsuiteDataList === undefined">
     <a-form-model
       ref="testcaseFormRuleFormRef"
       :model="testcaseForm"

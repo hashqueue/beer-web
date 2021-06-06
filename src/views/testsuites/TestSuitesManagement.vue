@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="dataSource === undefined">
     <div :class="advanced ? 'search' : null">
       <a-form layout="horizontal" :form="testsuiteCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">

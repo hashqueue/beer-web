@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" v-if="configForm !== undefined">
+  <a-card :bordered="false" :loading="configForm === undefined">
     <detail-list title="基本信息">
       <detail-list-item term="ID">{{ configForm.id }}</detail-list-item>
       <detail-list-item term="配置名称">{{ configForm.config_name }}</detail-list-item>
@@ -22,9 +22,6 @@
       :pagination="false"
     >
     </a-table>
-  </a-card>
-  <a-card v-else class="example">
-    <a-spin size="large" />
   </a-card>
 </template>
 
@@ -77,8 +74,5 @@ export default {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
-}
-.example {
-  text-align: center;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="configForm === undefined">
     <a-form-model
       ref="configFormRuleFormRef"
       :model="configForm"
@@ -90,12 +90,7 @@ export default {
           sm: { span: 6, offset: 2 }
         }
       },
-      configForm: {
-        config_name: '',
-        config_desc: '',
-        project: '',
-        global_variable: [{ key: '', value: '' }]
-      },
+      configForm: undefined,
       configFormRules: {
         config_name: [
           { required: true, message: '配置名称是必填项', trigger: 'blur' },

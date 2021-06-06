@@ -1,5 +1,5 @@
 <template>
-  <a-card>
+  <a-card :loading="dataSource === undefined">
     <div :class="advanced ? 'search' : null">
       <a-form layout="horizontal" :form="projectCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">
@@ -143,7 +143,7 @@ export default {
       projectCombinationQueryForm: this.$form.createForm(this, { name: 'project_combination_query_form' }),
       advanced: true,
       columns: columns,
-      dataSource: [],
+      dataSource: undefined,
       selectedRows: [],
       pagination: {},
       filters: {},
