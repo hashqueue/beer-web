@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="dataSource === undefined">
+  <a-card :loading="dataSource === undefined" v-if="dataSource !== undefined">
     <div>
       <standard-table
         bordered

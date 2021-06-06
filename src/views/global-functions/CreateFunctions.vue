@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="projectDataList === undefined">
+  <a-card>
     <a-form-model
       ref="functionFormRuleFormRef"
       :model="functionForm"

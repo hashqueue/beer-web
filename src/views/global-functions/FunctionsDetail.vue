@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" :loading="functionForm === undefined">
+  <a-card :bordered="false">
     <detail-list title="基本信息">
       <detail-list-item term="ID">{{ functionForm.id }}</detail-list-item>
       <detail-list-item term="函数名称">{{ functionForm.function_name }}</detail-list-item>
@@ -35,8 +35,10 @@ export default {
     })
   },
   mounted() {
-    // 挂载editor
-    this.initEditor()
+    this.$nextTick(() => {
+      // 挂载editor
+      this.initEditor()
+    })
   },
   destroyed() {
     // 销毁editor
@@ -45,7 +47,12 @@ export default {
   data() {
     return {
       editor: undefined, // 文本编辑器
-      functionForm: undefined,
+      functionForm: {
+        function_name: '',
+        function_desc: '',
+        project: '',
+        function_body: '' // monaco-editor编辑器里的内容
+      },
       detailFunctionId: undefined,
       codeOptions: {
         value: '# -*- coding: utf-8 -*-\n', // 编辑器初始显示文字

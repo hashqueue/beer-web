@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="dataSource === undefined">
+  <a-card :loading="dataSource === undefined" v-if="dataSource !== undefined">
     <div :class="advanced ? 'search' : null">
       <a-form layout="horizontal" :form="functionCombinationQueryForm">
         <div :class="advanced ? null : 'fold'">

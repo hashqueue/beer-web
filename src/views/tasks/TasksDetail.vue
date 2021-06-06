@@ -1,6 +1,6 @@
 <template>
-  <a-card :bordered="false" :loading="taskForm === undefined">
-    <detail-list title="任务基本信息" v-if="taskForm !== undefined">
+  <a-card :bordered="false" :loading="taskForm === undefined" v-if="taskForm !== undefined">
+    <detail-list title="任务基本信息">
       <detail-list-item term="ID">{{ taskForm.id }}</detail-list-item>
       <detail-list-item term="任务类型">{{
         taskForm.task_name === 'project.tasks.run_project' ? '运行项目生成' : '运行套件生成'
@@ -15,9 +15,6 @@
       <detail-list-item term="创建人">{{ taskForm.task_kwargs.creator }}</detail-list-item>
       <detail-list-item term="任务创建时间">{{ taskForm.date_created }}</detail-list-item>
       <detail-list-item term="任务完成时间">{{ taskForm.date_done }}</detail-list-item>
-    </detail-list>
-    <detail-list v-else class="example">
-      <a-spin size="large" />
     </detail-list>
     <a-divider style="margin-bottom: 32px" />
     <div class="title">用例执行结果</div>
@@ -81,13 +78,15 @@ export default {
       isShowDetailDataList: undefined,
       isPassedText: undefined,
       testSuiteResultData: undefined,
-      projectResultData: undefined
+      projectResultData: undefined,
+      id: undefined
     }
   },
   created() {
     this.detailTaskId = this.$route.params.detailTaskId
     // 获取配置详情信息
     getTaskDetail(this.detailTaskId).then((res) => {
+      this.id = res.data.id
       res.data.task_kwargs = res.data.task_kwargs.replace(/"/g, '') // 删掉字符串首尾的两个双引号
       res.data.task_kwargs = res.data.task_kwargs.replace(/'/g, '"') // 替换字符串内所有的单引号为双引号
       res.data.task_kwargs = JSON.parse(res.data.task_kwargs)
@@ -134,8 +133,6 @@ export default {
       if (typeof this.taskForm.result === 'object') {
         // js对象判断包含属性
         if ('summary_data' in this.taskForm.result) {
-          // 渲染图表
-          this.createPieChart()
           // 运行结果为正常
           this.isShowError = { display: 'none' } // 控制异常结果不展示
           if (this.taskForm.result.summary_data.status === true) {
@@ -143,6 +140,10 @@ export default {
           } else {
             this.isPassedText = '测试未通过'
           }
+          setTimeout(() => {
+            // 渲染图表
+            this.createPieChart()
+          }, 1000)
         } else if ('error' in this.taskForm.result) {
           this.resultErrorMessage = this.taskForm.result.error
           this.isShowDetailDataList = { display: 'none' }
@@ -231,8 +232,5 @@ export default {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
-}
-.example {
-  text-align: center;
 }
 </style>

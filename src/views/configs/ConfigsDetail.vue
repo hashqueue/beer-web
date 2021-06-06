@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" :loading="configForm === undefined">
+  <a-card :bordered="false" :loading="configForm === undefined" v-if="configForm !== undefined">
     <detail-list title="基本信息">
       <detail-list-item term="ID">{{ configForm.id }}</detail-list-item>
       <detail-list-item term="配置名称">{{ configForm.config_name }}</detail-list-item>

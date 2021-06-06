@@ -1,5 +1,10 @@
 <template>
-  <a-card :bordered="false" title="测试用例详情" :loading="testcaseForm === undefined">
+  <a-card
+    :bordered="false"
+    title="测试用例详情"
+    :loading="testcaseForm === undefined"
+    v-if="testcaseForm !== undefined"
+  >
     <a-button slot="extra" type="primary" @click="runCurrentTestcase" disabled>运行用例</a-button>
     <detail-list title="用例基本信息">
       <detail-list-item term="ID">{{ testcaseForm.id }}</detail-list-item>

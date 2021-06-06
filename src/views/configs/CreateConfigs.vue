@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="projectDataList === undefined">
+  <a-card :loading="projectDataList === undefined" v-if="projectDataList !== undefined">
     <a-form-model
       ref="configFormRuleFormRef"
       :model="configForm"

@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="runTestcaseResult === undefined">
+  <a-card :loading="runTestcaseResult === undefined" v-if="runTestcaseResult !== undefined">
     <a-tabs hide-add v-model="activeKey" type="card">
       <a-tab-pane
         v-for="(teststepResult, index) in runTestcaseResult"

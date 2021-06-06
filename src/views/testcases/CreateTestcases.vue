@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="testsuiteDataList === undefined">
+  <a-card :loading="testsuiteDataList === undefined" v-if="testsuiteDataList !== undefined">
     <a-form-model
       ref="testcaseFormRuleFormRef"
       :model="testcaseForm"

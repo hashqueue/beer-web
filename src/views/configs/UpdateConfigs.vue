@@ -1,5 +1,5 @@
 <template>
-  <a-card :loading="configForm === undefined">
+  <a-card :loading="configForm === undefined" v-if="configForm !== undefined">
     <a-form-model
       ref="configFormRuleFormRef"
       :model="configForm"

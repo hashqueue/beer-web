@@ -1,5 +1,4 @@
 let path = require('path')
-const webpack = require('webpack')
 const ThemeColorReplacer = require('webpack-theme-color-replacer')
 const { getThemeColors, modifyVars } = require('./src/utils/themeUtil')
 const { resolveCss } = require('./src/utils/theme-color-replacer-extend')
@@ -17,17 +16,15 @@ const assetsCDN = {
     vuex: 'Vuex',
     axios: 'axios',
     nprogress: 'NProgress',
-    clipboard: 'ClipboardJS',
     'js-cookie': 'Cookies'
   },
   css: [],
   js: [
-    '//cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js',
+    '//cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js',
     '//cdn.jsdelivr.net/npm/vue-router@3.3.4/dist/vue-router.min.js',
     '//cdn.jsdelivr.net/npm/vuex@3.4.0/dist/vuex.min.js',
     '//cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js',
     '//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js',
-    '//cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js',
     '//cdn.jsdelivr.net/npm/js-cookie@2.2.1/src/js.cookie.min.js'
   ]
 }
@@ -63,8 +60,6 @@ module.exports = {
         resolveCss
       })
     )
-    // Ignore all locale files of moment.js
-    config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/))
     // monaco-editor的webpack配置
     config.plugins.push(new MonacoWebpackPlugin({ languages: ['python', 'json'] }))
     // 生产环境下将资源压缩成gzip格式
