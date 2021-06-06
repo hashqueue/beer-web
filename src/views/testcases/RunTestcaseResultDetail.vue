@@ -8,6 +8,11 @@
       >
         <a-card>
           <detail-list title="基本信息">
+            <detail-list-item term="测试步骤运行结果"
+              ><a-badge
+                :status="teststepResult.status ? 'success' : 'error'"
+                :text="teststepResult.status ? '成功' : '失败'"
+            /></detail-list-item>
             <detail-list-item term="测试步骤ID">{{ teststepResult.teststep_id }}</detail-list-item>
             <detail-list-item term="测试步骤名称">{{ teststepResult.teststep_name }}</detail-list-item>
             <detail-list-item term="请求URL">{{ teststepResult.request_url }}</detail-list-item>
@@ -47,6 +52,17 @@
             :editor-div-id="editorDivIds[index] + 4"
             :is-read-only="true"
           ></monaco-editor>
+          <a-divider style="margin-bottom: 32px" />
+          <div class="title">断言结果</div>
+          <a-table
+            bordered
+            :row-key="(record) => record.validator_type + Math.random()"
+            style="margin-bottom: 24px"
+            :columns="assertColumns"
+            :dataSource="teststepResult.teststep_validators_results"
+            :pagination="false"
+          >
+          </a-table>
         </a-card>
       </a-tab-pane>
     </a-tabs>
@@ -68,20 +84,31 @@ const assertColumns = [
   },
   {
     title: '实际结果(jmespath表达式)',
-    dataIndex: 'jmespath_expression',
-    key: 'jmespath_expression',
+    dataIndex: 'validator_jmespath_expression',
+    key: 'validator_jmespath_expression',
     ellipsis: true
   },
   {
     title: '预期结果',
-    dataIndex: 'expected_value',
-    key: 'expected_value',
+    dataIndex: 'validator_expected_value',
+    key: 'validator_expected_value',
     ellipsis: true
   },
   {
-    title: '描述',
-    dataIndex: 'desc',
-    key: 'desc',
+    title: '实际结果',
+    dataIndex: 'actual_value',
+    key: 'actual_value',
+    ellipsis: true
+  },
+  {
+    title: '断言结果',
+    dataIndex: 'validator_result',
+    key: 'validator_result'
+  },
+  {
+    title: '断言失败原因',
+    dataIndex: 'error',
+    key: 'error',
     ellipsis: true
   }
 ]

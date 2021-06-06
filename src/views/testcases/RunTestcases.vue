@@ -114,6 +114,11 @@ export default {
         for (let item1 of item.teststep_validators_results) {
           // 转化断言类型内容
           item1['validator_type'] = this.validatorTypes[item1['validator_type']]
+          let result = item1['validator_result']
+          item1['validator_result'] = result['status'] ? '成功' : '失败'
+          item1['actual_value'] =
+            typeof result['actual_value'] !== 'string' ? JSON.stringify(result['actual_value']) : result['actual_value']
+          item1['error'] = result['err'] === null ? '' : result['err']
         }
       }
       return dataNew
