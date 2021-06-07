@@ -17,8 +17,8 @@
           {{ text }}
         </div>
         <div slot="action" slot-scope="{ text, record }">
-          <a style="margin-right: 8px" @click="deleteConfig(record.id)"> <a-icon type="delete" />删除</a>
-          <a @click="getConfigDetail(record.id)"> <a-icon type="info-circle" />详情</a>
+          <a style="margin-right: 8px" @click="deleteConfig(record.task_id)"> <a-icon type="delete" />删除</a>
+          <a @click="getConfigDetail(record.task_id)"> <a-icon type="info-circle" />详情</a>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />
@@ -34,8 +34,9 @@ import { deleteDetailTask, getTasksDataList } from '@/services/tasks'
 
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id'
+    title: '任务ID',
+    dataIndex: 'task_id',
+    ellipsis: true
   },
   {
     title: '任务类型',
